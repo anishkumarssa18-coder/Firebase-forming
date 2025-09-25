@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "crop-care-1",
+      "description": "A vibrant green field of young crops under a clear blue sky.",
+      "imageUrl": "https://images.unsplash.com/uploads/1412026095116d2b0c90e/3bf33993?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxncmVlbiUyMGZpZWxkfGVufDB8fHx8MTc1ODc4ODE0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "green field"
+    },
+    {
+      "id": "soil-management-1",
+      "description": "Close-up of rich, dark soil being held in a farmer's hands.",
+      "imageUrl": "https://images.unsplash.com/photo-1654035659432-9231b1f7e47e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzb2lsJTIwaGFuZHN8ZW58MHx8fHwxNzU4ODA4OTQwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soil hands"
+    },
+    {
+      "id": "govt-scheme-1",
+      "description": "A government building with pillars, representing official schemes.",
+      "imageUrl": "https://images.unsplash.com/photo-1594581979864-36977b15d0dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxnb3Zlcm5tZW50JTIwYnVpbGRpbmd8ZW58MHx8fHwxNzU4Nzk3ODMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "government building"
+    },
+    {
+      "id": "pest-control-1",
+      "description": "A ladybug on a green leaf, symbolizing natural pest control.",
+      "imageUrl": "https://images.unsplash.com/photo-1656282302228-97ba987d0ae8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxsYWR5YnVnJTIwbGVhZnxlbnwwfHx8fDE3NTg3NjE0NzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ladybug leaf"
+    },
+    {
+      "id": "irrigation-1",
+      "description": "An irrigation sprinkler watering a field at sunrise.",
+      "imageUrl": "https://images.unsplash.com/photo-1632627254970-07f261b1f82e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxpcnJpZ2F0aW9uJTIwZmllbGR8ZW58MHx8fHwxNzU4ODIxMDExfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "irrigation field"
+    },
+    {
+      "id": "fertilizer-1",
+      "description": "Bags of fertilizer stacked in a barn.",
+      "imageUrl": "https://images.unsplash.com/photo-1646539248100-0a92d659d4d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmZXJ0aWxpemVyJTIwYmFnc3xlbnwwfHx8fDE3NTg3MjU3MjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fertilizer bags"
+    }
+  ]
 }
