@@ -41,18 +41,23 @@ export function AiAssistantClient() {
     setInput('');
 
     startTransition(async () => {
-      const languageLabel = languages.find(l => l.value === language)?.label || 'English';
-      const result = await aiQuerySupport({ query: input, language: languageLabel });
-      if (result && result.advice) {
-        const assistantMessage: Message = { role: 'assistant', content: result.advice };
-        setConversation((prev) => [...prev, assistantMessage]);
-      } else {
+      try {
+        const languageLabel = languages.find(l => l.value === language)?.label || 'English';
+        const result = await aiQuerySupport({ query: input, language: languageLabel });
+        if (result && result.advice) {
+          const assistantMessage: Message = { role: 'assistant', content: result.advice };
+          setConversation((prev) => [...prev, assistantMessage]);
+        } else {
+          throw new Error('Invalid response from AI');
+        }
+      } catch (error) {
+        console.error(error);
         toast({
           variant: 'destructive',
           title: t('aiAssistant.errorTitle'),
           description: t('aiAssistant.errorDescription'),
         });
-        setConversation((prev) => prev.slice(0, -1));
+        setConversation((prev) => prev.slice(0, -1)); // Remove the user's message on error
       }
     });
   };
