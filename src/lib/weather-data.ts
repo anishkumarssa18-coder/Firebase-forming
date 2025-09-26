@@ -51,6 +51,11 @@ async function getCityName(lat: number, lon: number): Promise<string> {
       if (city && state) {
         return `${city.long_name}, ${state.short_name}`;
       }
+      // Fallback to a broader location if city/state not found
+      const area = addressComponents.find((c: any) => c.types.includes('administrative_area_level_2')) || addressComponents.find((c: any) => c.types.includes('political'));
+      if (area) {
+        return area.long_name;
+      }
       return data.results[0].formatted_address;
     }
     return 'Unknown Location';
@@ -116,22 +121,23 @@ export async function getRealTimeWeather(
     return { currentWeather, forecast };
   } catch (error) {
     console.error('Failed to get real-time weather:', error);
+    // Provide a more generic default location
     return {
       currentWeather: {
-        location: 'Central Valley, Punjab',
-        temperature: 32,
+        location: 'Default Location',
+        temperature: 25,
         condition: 'Sunny',
-        wind: '12 km/h',
-        humidity: '65%',
+        wind: '10 km/h',
+        humidity: '60%',
       },
       forecast: [
-        { day: 'Mon', temp: 34, condition: 'Sunny' },
-        { day: 'Tue', temp: 35, condition: 'Sunny' },
-        { day: 'Wed', temp: 33, condition: 'Cloudy' },
-        { day: 'Thu', temp: 30, condition: 'Rainy' },
-        { day: 'Fri', temp: 31, condition: 'Rainy' },
-        { day: 'Sat', temp: 32, condition: 'Cloudy' },
-        { day: 'Sun', temp: 34, condition: 'Sunny' },
+        { day: 'Mon', temp: 26, condition: 'Sunny' },
+        { day: 'Tue', temp: 27, condition: 'Sunny' },
+        { day: 'Wed', temp: 25, condition: 'Cloudy' },
+        { day: 'Thu', temp: 24, condition: 'Rainy' },
+        { day: 'Fri', temp: 24, condition: 'Rainy' },
+        { day: 'Sat', temp: 26, condition: 'Cloudy' },
+        { day: 'Sun', temp: 27, condition: 'Sunny' },
       ],
     };
   }
