@@ -7,6 +7,7 @@ import { ArrowRight, Cloud, Droplets, Sun, Thermometer, Wind, CloudRain, LocateF
 import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from '@/context/language-context';
+import { WeatherAlerts } from './components/weather-alerts';
 
 const defaultWeather: {
   currentWeather: CurrentWeather,
@@ -156,6 +157,12 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {!loading && (
+        <section>
+          <WeatherAlerts weather={currentWeather} />
+        </section>
+      )}
 
       <section className="text-center py-8">
         <Card className="bg-primary/10 border-primary/20 max-w-4xl mx-auto p-8">
