@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Bot, Languages, Send, User } from 'lucide-react';
 import { useState, useTransition, useRef, useEffect } from 'react';
-import { useLanguage } from '@/context/language-context';
+import { useLanguage, useTranslation, languages } from '@/context/language-context';
 
 
 type Message = {
@@ -21,6 +21,7 @@ export function AiAssistantClient() {
   const [conversation, setConversation] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const { language } = useLanguage();
+  const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -40,15 +41,16 @@ export function AiAssistantClient() {
     setInput('');
 
     startTransition(async () => {
-      const result = await aiQuerySupport({ query: input, language });
+      const languageLabel = languages.find(l => l.value === language)?.label || 'English';
+      const result = await aiQuerySupport({ query: input, language: languageLabel });
       if (result && result.advice) {
         const assistantMessage: Message = { role: 'assistant', content: result.advice };
         setConversation((prev) => [...prev, assistantMessage]);
       } else {
         toast({
           variant: 'destructive',
-          title: 'Error',
-          description: 'Failed to get a response from the AI assistant.',
+          title: t('aiAssistant.errorTitle'),
+          description: t('aiAssistant.errorDescription'),
         });
         setConversation((prev) => prev.slice(0, -1));
       }
@@ -59,7 +61,7 @@ export function AiAssistantClient() {
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Chat with our Expert AI</span>
+          <span>{t('aiAssistant.title')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -67,8 +69,8 @@ export function AiAssistantClient() {
           {conversation.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
               <Bot className="w-12 h-12 mb-4" />
-              <p>Ask me anything about farming!</p>
-              <p className="text-sm">e.g., "How to control pests in my wheat crop?"</p>
+              <p>{t('aiAssistant.prompt')}</p>
+              <p className="text-sm">{t('aiAssistant.promptExample')}</p>
             </div>
           ) : (
             conversation.map((msg, index) => (
@@ -113,13 +115,13 @@ export function AiAssistantClient() {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Ask a question in ${language}...`}
+            placeholder={t('aiAssistant.inputPlaceholder').replace('{language}', languages.find(l => l.value === language)?.label || 'English')}
             disabled={isPending}
             className="flex-1"
           />
           <Button type="submit" disabled={isPending || !input.trim()}>
             <Send className="h-5 w-5" />
-            <span className="sr-only">Send</span>
+            <span className="sr-only">{t('aiAssistant.send')}</span>
           </Button>
         </form>
       </CardFooter>

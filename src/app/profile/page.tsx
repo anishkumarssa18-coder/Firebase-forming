@@ -8,10 +8,13 @@ import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { User as UserIcon, Mail, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/context/language-context';
+
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -23,9 +26,9 @@ export default function ProfilePage() {
     // Or if a user navigates here directly without being logged in.
     return (
       <div className="text-center">
-        <p>You must be logged in to view this page.</p>
+        <p>{t('profile.mustBeLoggedIn')}</p>
         <Button onClick={() => router.push('/login')} className="mt-4">
-          Go to Login
+          {t('profile.goToLogin')}
         </Button>
       </div>
     );
@@ -41,7 +44,7 @@ export default function ProfilePage() {
               {user.displayName ? user.displayName[0].toUpperCase() : <UserIcon size={40} />}
             </AvatarFallback>
           </Avatar>
-          <CardTitle className="text-3xl">{user.displayName || 'User'}</CardTitle>
+          <CardTitle className="text-3xl">{user.displayName || t('profile.user')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="flex items-center gap-4 p-3 bg-muted rounded-md">
@@ -51,7 +54,7 @@ export default function ProfilePage() {
             <div className="text-center pt-4">
                 <Button onClick={handleLogout} variant="destructive">
                     <LogOut className="mr-2 h-5 w-5" />
-                    Log Out
+                    {t('profile.logoutButton')}
                 </Button>
             </div>
         </CardContent>

@@ -6,6 +6,7 @@ import { getRealTimeWeather, type CurrentWeather, type ForecastDay } from '@/lib
 import { ArrowRight, Cloud, Droplets, Sun, Thermometer, Wind, CloudRain, LocateFixed, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from '@/context/language-context';
 
 const defaultWeather: {
   currentWeather: CurrentWeather,
@@ -25,6 +26,7 @@ export default function Home() {
   const [weather, setWeather] = useState(defaultWeather);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   const fetchWeatherForLocation = useCallback(async (lat: number, lon: number) => {
     setError(null);
@@ -33,11 +35,11 @@ export default function Home() {
       const weatherData = await getRealTimeWeather(lat, lon);
       setWeather(weatherData);
     } catch (err) {
-      setError('Could not fetch weather data. Please try again.');
+      setError(t('home.weatherError'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const getLocation = useCallback(() => {
     setLoading(true);
@@ -47,17 +49,17 @@ export default function Home() {
           fetchWeatherForLocation(position.coords.latitude, position.coords.longitude);
         },
         () => {
-          setError('Location access denied. Showing weather for a default location.');
+          setError(t('home.locationDenied'));
           // Fallback to a default location (e.g., Delhi, IN)
           fetchWeatherForLocation(28.6139, 77.2090);
         }
       );
     } else {
-      setError('Geolocation is not supported. Showing weather for a default location.');
+      setError(t('home.geolocationNotSupported'));
       // Fallback to a default location
       fetchWeatherForLocation(28.6139, 77.2090);
     }
-  }, [fetchWeatherForLocation]);
+  }, [fetchWeatherForLocation, t]);
 
   useEffect(() => {
     getLocation();
@@ -85,19 +87,19 @@ export default function Home() {
     <div className="space-y-12">
       <section className="text-center">
         <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight text-primary">
-          Welcome to Farming Master
+          {t('home.welcome')}
         </h1>
         <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-          Your AI-powered partner for smarter farming. Get instant advice, weather updates, and disease diagnosis to maximize your yield.
+          {t('home.tagline')}
         </p>
         
         <Card className="max-w-md mx-auto shadow-lg border-2 border-primary/20 mt-8">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>{loading ? 'Fetching location...' : currentWeather.location}</span>
+              <span>{loading ? t('home.fetchingLocation') : currentWeather.location}</span>
               <Button variant="ghost" size="icon" onClick={getLocation} disabled={loading} className="w-8 h-8">
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LocateFixed className="w-5 h-5" />}
-                  <span className="sr-only">Refresh Location</span>
+                  <span className="sr-only">{t('home.refreshLocation')}</span>
               </Button>
             </CardTitle>
           </CardHeader>
@@ -105,7 +107,7 @@ export default function Home() {
              {loading ? (
                 <div className="flex flex-col items-center justify-center h-24">
                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                    <p className="mt-2 text-muted-foreground">Loading weather...</p>
+                    <p className="mt-2 text-muted-foreground">{t('home.loadingWeather')}</p>
                 </div>
             ) : (
                 <>
@@ -120,8 +122,8 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center gap-2"><Wind className="w-4 h-4 text-muted-foreground" /> Wind: {currentWeather.wind}</div>
-                      <div className="flex items-center gap-2"><Droplets className="w-4 h-4 text-muted-foreground" /> Humidity: {currentWeather.humidity}</div>
+                      <div className="flex items-center gap-2"><Wind className="w-4 h-4 text-muted-foreground" /> {t('home.wind')}: {currentWeather.wind}</div>
+                      <div className="flex items-center gap-2"><Droplets className="w-4 h-4 text-muted-foreground" /> {t('home.humidity')}: {currentWeather.humidity}</div>
                     </div>
                 </>
             )}
@@ -132,7 +134,7 @@ export default function Home() {
 
       <section className="space-y-6">
         <h2 className="text-2xl md:text-3xl font-bold font-headline text-center">
-          7-Day Forecast
+          {t('home.forecastTitle')}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           {forecast.map((day, index) => (
@@ -158,14 +160,14 @@ export default function Home() {
       <section className="text-center py-8">
         <Card className="bg-primary/10 border-primary/20 max-w-4xl mx-auto p-8">
           <h2 className="text-2xl md:text-3xl font-bold font-headline">
-            Have a Question?
+            {t('home.haveQuestion')}
           </h2>
           <p className="mt-2 text-muted-foreground">
-            Get instant, AI-powered answers to your farming questions.
+            {t('home.askAi')}
           </p>
           <Button asChild size="lg" className="mt-6 animate-pulse">
             <Link href="/query">
-              Ask AI Assistant <ArrowRight className="ml-2 h-5 w-5" />
+              {t('home.askAiButton')} <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </Card>

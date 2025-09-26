@@ -18,6 +18,7 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslation } from '@/context/language-context';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -26,6 +27,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +39,7 @@ export default function SignupPage() {
     } catch (error: any) {
       toast({
         variant: 'destructive',
-        title: 'Signup Failed',
+        title: t('signup.failTitle'),
         description: error.message,
       });
     } finally {
@@ -49,26 +51,26 @@ export default function SignupPage() {
     <div className="flex justify-center items-center">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Sign Up</CardTitle>
+          <CardTitle>{t('signup.title')}</CardTitle>
           <CardDescription>
-            Create an account to get started.
+            {t('signup.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('signup.nameLabel')}</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="Your Name"
+                placeholder={t('signup.namePlaceholder')}
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('signup.emailLabel')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -79,7 +81,7 @@ export default function SignupPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('signup.passwordLabel')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -91,15 +93,15 @@ export default function SignupPage() {
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign Up
+              {t('signup.signupButton')}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
-            Already have an account?{' '}
+            {t('signup.haveAccount')}{' '}
             <Link href="/login" className="text-primary hover:underline">
-              Log in
+              {t('signup.loginLink')}
             </Link>
           </p>
         </CardFooter>

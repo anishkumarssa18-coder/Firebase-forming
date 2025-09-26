@@ -1,0 +1,167 @@
+{
+  "header": {
+    "title": "Farming Master",
+    "home": "Home",
+    "aiQuery": "AI Query",
+    "advisoryHub": "Advisory Hub",
+    "alerts": "Alerts",
+    "language": "Language",
+    "user": "User",
+    "profile": "Profile",
+    "logout": "Log out",
+    "login": "Login",
+    "openMenu": "Open menu",
+    "menu": "Menu",
+    "loginSignup": "Login / Sign Up"
+  },
+  "home": {
+    "welcome": "Welcome to Farming Master",
+    "tagline": "Your AI-powered partner for smarter farming. Get instant advice, weather updates, and disease diagnosis to maximize your yield.",
+    "fetchingLocation": "Fetching location...",
+    "refreshLocation": "Refresh Location",
+    "loadingWeather": "Loading weather...",
+    "wind": "Wind",
+    "humidity": "Humidity",
+    "weatherError": "Could not fetch weather data. Please try again.",
+    "locationDenied": "Location access denied. Showing weather for a default location.",
+    "geolocationNotSupported": "Geolocation is not supported. Showing weather for a default location.",
+    "forecastTitle": "7-Day Forecast",
+    "haveQuestion": "Have a Question?",
+    "askAi": "Get instant, AI-powered answers to your farming questions.",
+    "askAiButton": "Ask AI Assistant"
+  },
+  "query": {
+    "title": "AI Advisory",
+    "description": "Get instant help from our advanced AI. Ask a question or analyze an image.",
+    "aiAssistantTab": "AI Assistant",
+    "imageAnalysisTab": "Image Analysis"
+  },
+  "aiAssistant": {
+    "title": "Chat with our Expert AI",
+    "prompt": "Ask me anything about farming!",
+    "promptExample": "e.g., \"How to control pests in my wheat crop?\"",
+    "inputPlaceholder": "Ask a question in {language}...",
+    "send": "Send",
+    "errorTitle": "Error",
+    "errorDescription": "Failed to get a response from the AI assistant."
+  },
+  "imageAnalysis": {
+    "title": "Crop & Soil Image Analysis",
+    "description": "Upload an image of a plant, leaf, or soil to get an AI-powered diagnosis and suggestions.",
+    "uploadTitle": "Upload an Image",
+    "uploadDescription": "Drag and drop or click to select a file",
+    "browseFiles": "Browse Files",
+    "imagePreviewAlt": "Image preview",
+    "analyzing": "Analyzing...",
+    "diagnoseButton": "Diagnose Image",
+    "diagnosisResultTitle": "AI Diagnosis Result",
+    "fileTooLargeTitle": "File too large",
+    "fileTooLargeDescription": "Please upload an image smaller than 4MB.",
+    "noImageSelectedTitle": "No image selected",
+    "noImageSelectedDescription": "Please upload an image to analyze.",
+    "analysisFailedTitle": "Analysis Failed",
+    "analysisFailedDescription": "Could not get a diagnosis. Please try again."
+  },
+  "advisory": {
+    "title": "Advisory Knowledge Hub",
+    "description": "Your one-stop resource for farming knowledge and best practices.",
+    "searchPlaceholder": "Search articles...",
+    "all": "All",
+    "noArticlesFound": "No articles found.",
+    "adjustFilters": "Try adjusting your search or filters.",
+    "categories": {
+      "CropCare": "Crop Care",
+      "SoilManagement": "Soil Management",
+      "GovernmentSchemes": "Government Schemes",
+      "PestControl": "Pest Control"
+    },
+    "articles": {
+      "cc-01": {
+        "title": "Effective Wheat Cultivation Techniques",
+        "summary": "Learn about the best practices for wheat cultivation, from sowing to harvesting, to maximize your yield."
+      },
+      "sm-01": {
+        "title": "Understanding Soil pH and Its Importance",
+        "summary": "Discover how soil pH affects nutrient availability and crop health. Includes tips for testing and amendment."
+      },
+      "gs-01": {
+        "title": "Guide to Pradhan Mantri Fasal Bima Yojana (PMFBY)",
+        "summary": "A comprehensive overview of the flagship crop insurance scheme, including eligibility and application process."
+      },
+      "pc-01": {
+        "title": "Integrated Pest Management (IPM) for Cotton",
+        "summary": "Implement sustainable and effective pest control strategies for your cotton crops using IPM principles."
+      },
+      "cc-02": {
+        "title": "Advanced Irrigation Methods for Sugarcane",
+        "summary": "Explore drip and sprinkler irrigation systems to conserve water and improve sugarcane growth."
+      },
+      "sm-02": {
+        "title": "The Role of Organic Matter in Soil Health",
+        "summary": "Learn how to improve soil structure, water retention, and fertility by increasing organic matter."
+      },
+      "gs-02": {
+        "title": "How to Benefit from the PM-KISAN Scheme",
+        "summary": "Step-by-step guide to enrolling in and receiving benefits from the PM-KISAN income support scheme."
+      },
+      "pc-02": {
+        "title": "Natural Remedies for Common Vegetable Pests",
+        "summary": "Use neem oil, garlic spray, and other organic solutions to protect your vegetable garden from pests."
+      }
+    }
+  },
+  "alerts": {
+    "title": "Alerts & Updates",
+    "description": "Stay informed about important weather and agricultural events.",
+    "items": {
+      "alert-1": {
+        "title": "Pest Risk Alert: High Humidity",
+        "description": "High humidity and recent rainfall increase the risk of fungal diseases and aphid infestations. Monitor crops closely."
+      },
+      "alert-2": {
+        "title": "Heatwave Warning for Next 48 Hours",
+        "description": "Temperatures are expected to exceed 40°C. Ensure adequate irrigation for all crops to prevent heat stress."
+      },
+      "alert-3": {
+        "title": "PM-KISAN Scheme: Next Installment Update",
+        "description": "The next installment of the PM-KISAN scheme is scheduled to be released by the end of the month. Ensure your eKYC is complete."
+      },
+      "alert-4": {
+        "title": "Moderate Rainfall Predicted",
+        "description": "Moderate rainfall expected over the weekend. Plan harvesting activities accordingly to avoid crop damage."
+      },
+      "alert-5": {
+        "title": "Locust Swarm Sighting Reported",
+        "description": "Small locust swarms have been reported in neighboring districts. Be vigilant and report any sightings immediately."
+      }
+    }
+  },
+  "login": {
+    "title": "Log In",
+    "description": "Enter your credentials to access your account.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "loginButton": "Log In",
+    "noAccount": "Don't have an account?",
+    "signupLink": "Sign up",
+    "failTitle": "Login Failed"
+  },
+  "signup": {
+    "title": "Sign Up",
+    "description": "Create an account to get started.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "signupButton": "Sign Up",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Log in",
+    "failTitle": "Signup Failed"
+  },
+  "profile": {
+    "mustBeLoggedIn": "You must be logged in to view this page.",
+    "goToLogin": "Go to Login",
+    "user": "User",
+    "logoutButton": "Log Out"
+  }
+}

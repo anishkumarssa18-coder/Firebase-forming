@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { signOut } from 'firebase/auth';
 
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { auth } from '@/lib/firebase';
@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { useLanguage, languages } from '@/context/language-context';
+import { useLanguage, languages, useTranslation } from '@/context/language-context';
 import {
   Select,
   SelectContent,
@@ -42,10 +42,10 @@ import {
 
 
 const navLinks = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/query', label: 'AI Query', icon: BotMessageSquare },
-  { href: '/advisory-hub', label: 'Advisory Hub', icon: Book },
-  { href: '/alerts', label: 'Alerts', icon: Bell },
+  { href: '/', labelKey: 'header.home', icon: Home },
+  { href: '/query', labelKey: 'header.aiQuery', icon: BotMessageSquare },
+  { href: '/advisory-hub', labelKey: 'header.advisoryHub', icon: Book },
+  { href: '/alerts', labelKey: 'header.alerts', icon: Bell },
 ];
 
 export function Header() {
@@ -54,6 +54,7 @@ export function Header() {
   const { user } = useAuth();
   const router = useRouter();
   const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -62,12 +63,12 @@ export function Header() {
 
   const NavLink = ({
     href,
-    label,
+    labelKey,
     icon: Icon,
     isMobile = false,
   }: {
     href: string;
-    label: string;
+    labelKey: string;
     icon: React.ElementType;
     isMobile?: boolean;
   }) => {
@@ -85,7 +86,7 @@ export function Header() {
         )}
       >
         <Icon className="h-5 w-5" />
-        <span>{label}</span>
+        <span>{t(labelKey)}</span>
       </Link>
     );
   };
@@ -95,12 +96,12 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 font-bold">
           <Sprout className="h-7 w-7 text-primary" />
-          <span className="text-xl font-headline">Farming Master</span>
+          <span className="text-xl font-headline">{t('header.title')}</span>
         </Link>
 
         <nav className="hidden items-center gap-4 md:flex">
           {navLinks.map((link) => (
-            <NavLink key={link.href} {...link} />
+            <NavLink key={link.href} href={link.href} labelKey={link.labelKey} icon={link.icon} />
           ))}
         </nav>
 
@@ -109,7 +110,7 @@ export function Header() {
             <Languages className="w-5 h-5 text-muted-foreground hidden sm:block" />
             <Select value={language} onValueChange={setLanguage}>
               <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Language" />
+                <SelectValue placeholder={t('header.language')} />
               </SelectTrigger>
               <SelectContent>
                 {languages.map((lang) => (
@@ -125,7 +126,7 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar>
-                    <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+                    <AvatarImage src={user.photoURL || undefined} alt={user.displayName || t('header.user')} />
                     <AvatarFallback>{user.displayName ? user.displayName[0].toUpperCase() : <User />}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -143,13 +144,13 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link href="/profile">
                     <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <span>{t('header.profile')}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <span>{t('header.logout')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -157,7 +158,7 @@ export function Header() {
             <Button asChild variant="ghost" className="hidden md:flex">
                 <Link href="/login">
                     <LogIn className="mr-2"/>
-                    Login
+                    {t('header.login')}
                 </Link>
             </Button>
           )}
@@ -167,23 +168,23 @@ export function Header() {
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">{t('header.openMenu')}</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-full">
                 <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
+                  <SheetTitle>{t('header.menu')}</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-6 pt-10">
                   {navLinks.map((link) => (
-                    <NavLink key={link.href} {...link} isMobile />
+                    <NavLink key={link.href} href={link.href} labelKey={link.labelKey} icon={link.icon} isMobile />
                   ))}
                    <div className="mt-auto pt-6 border-t">
                   {user ? (
                     <div className='space-y-4'>
                       <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 text-lg font-medium">
                         <Avatar>
-                            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+                            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || t('header.user')} />
                             <AvatarFallback>{user.displayName ? user.displayName[0].toUpperCase() : <User />}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -193,14 +194,14 @@ export function Header() {
                       </Link>
                       <Button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="w-full justify-start text-lg">
                         <LogOut className="mr-2 h-5 w-5" />
-                        Log out
+                        {t('header.logout')}
                       </Button>
                     </div>
                   ) : (
                     <Button asChild className="w-full justify-start text-lg">
                       <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                         <LogIn className="mr-2 h-5 w-5" />
-                        Login / Sign Up
+                        {t('header.loginSignup')}
                       </Link>
                     </Button>
                   )}

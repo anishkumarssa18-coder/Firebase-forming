@@ -1,8 +1,11 @@
+'use client';
+
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { alerts, type Alert as AlertType } from '@/lib/alerts-data';
 import { cn } from '@/lib/utils';
 import { AlertOctagon, AlertTriangle, Info, Calendar, Clock } from 'lucide-react';
 import React from 'react';
+import { useTranslation } from '@/context/language-context';
 
 const severityConfig = {
   info: {
@@ -20,8 +23,12 @@ const severityConfig = {
 };
 
 const AlertCard: React.FC<{ alert: AlertType }> = ({ alert }) => {
+  const { t } = useTranslation();
   const config = severityConfig[alert.severity];
   const alertDate = new Date(alert.date);
+  const translatedTitle = t(`alerts.items.${alert.id}.title`);
+  const translatedDescription = t(`alerts.items.${alert.id}.description`);
+
 
   return (
     <Card className={cn('shadow-md transition-all hover:shadow-lg hover:-translate-y-1', config.style)}>
@@ -29,7 +36,7 @@ const AlertCard: React.FC<{ alert: AlertType }> = ({ alert }) => {
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className={cn('flex-shrink-0')}>{config.icon}</span>
-            <CardTitle className="text-lg font-semibold">{alert.title}</CardTitle>
+            <CardTitle className="text-lg font-semibold">{translatedTitle}</CardTitle>
           </div>
           <div className="flex-shrink-0 flex flex-col items-end gap-2 text-xs text-foreground/60">
             <div className="flex items-center gap-2">
@@ -42,19 +49,20 @@ const AlertCard: React.FC<{ alert: AlertType }> = ({ alert }) => {
             </div>
           </div>
         </div>
-        <CardDescription className="pt-2 pl-8 text-foreground/80">{alert.description}</CardDescription>
+        <CardDescription className="pt-2 pl-8 text-foreground/80">{translatedDescription}</CardDescription>
       </CardHeader>
     </Card>
   );
 };
 
 export default function AlertsPage() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h1 className="text-3xl md:text-4xl font-bold font-headline">Alerts & Updates</h1>
+        <h1 className="text-3xl md:text-4xl font-bold font-headline">{t('alerts.title')}</h1>
         <p className="mt-2 text-lg text-muted-foreground">
-          Stay informed about important weather and agricultural events.
+          {t('alerts.description')}
         </p>
       </div>
 

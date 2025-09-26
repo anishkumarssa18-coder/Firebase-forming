@@ -8,10 +8,12 @@ import { Filter, Search } from 'lucide-react';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import type { AdvisoryArticle } from '@/lib/advisory-data';
+import { useTranslation } from '@/context/language-context';
 
-type AdvisoryArticleWithImage = AdvisoryArticle & {
+type AdvisoryArticleWithImage = Omit<AdvisoryArticle, 'category'> & {
   imageUrl: string;
   imageHint: string;
+  category: string;
 };
 
 interface AdvisoryClientProps {
@@ -22,6 +24,7 @@ interface AdvisoryClientProps {
 export function AdvisoryClient({ articles, categories }: AdvisoryClientProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const filteredArticles = useMemo(() => {
     return articles.filter((article) => {
@@ -41,7 +44,7 @@ export function AdvisoryClient({ articles, categories }: AdvisoryClientProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search articles..."
+            placeholder={t('advisory.searchPlaceholder')}
             className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -53,7 +56,7 @@ export function AdvisoryClient({ articles, categories }: AdvisoryClientProps) {
                 onClick={() => setSelectedCategory(null)}
                 className="flex-shrink-0"
             >
-                <Filter className="mr-2 h-4 w-4" /> All
+                <Filter className="mr-2 h-4 w-4" /> {t('advisory.all')}
             </Button>
           {categories.map((category) => (
             <Button
@@ -97,8 +100,8 @@ export function AdvisoryClient({ articles, categories }: AdvisoryClientProps) {
         </div>
       ) : (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
-          <p className="text-muted-foreground">No articles found.</p>
-          <p className="text-sm text-muted-foreground">Try adjusting your search or filters.</p>
+          <p className="text-muted-foreground">{t('advisory.noArticlesFound')}</p>
+          <p className="text-sm text-muted-foreground">{t('advisory.adjustFilters')}</p>
         </div>
       )}
     </div>
