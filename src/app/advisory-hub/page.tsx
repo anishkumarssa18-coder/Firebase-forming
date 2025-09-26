@@ -3,10 +3,34 @@ import { advisoryArticles, advisoryCategories } from '@/lib/advisory-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { AdvisoryClient } from './components/advisory-client';
 import { useTranslation } from '@/context/language-context';
+import { useMemo } from 'react';
+
+// Function to shuffle an array
+function shuffle<T>(array: T[]): T[] {
+  let currentIndex = array.length,  randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex > 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
+
 
 export default function AdvisoryHubPage() {
   const { t } = useTranslation();
-  const articlesWithImages = advisoryArticles.map((article) => {
+
+  const shuffledArticles = useMemo(() => shuffle([...advisoryArticles]), []);
+
+  const articlesWithImages = shuffledArticles.map((article) => {
     const image = PlaceHolderImages.find((img) => img.id === article.imageId);
     return {
       ...article,
