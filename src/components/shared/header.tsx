@@ -13,6 +13,7 @@ import {
   Languages,
   Moon,
   Sun,
+  Palette,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -33,6 +34,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useLanguage, languages, useTranslation } from '@/context/language-context';
@@ -113,25 +118,44 @@ export function Header() {
 
         <div className="flex items-center gap-2">
            <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme('light')}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('dark')}>
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('system')}>
-                System
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Palette className="h-[1.2rem] w-[1.2rem]" />
+                  <span className="sr-only">Toggle theme</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+                <DropdownMenuSeparator/>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <Sun className="mr-2 h-4 w-4" />
+                    <span>Mode</span>
+                  </DropdownMenuSubTrigger>
+                   <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                </DropdownMenuSub>
+                 <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                     <Palette className="mr-2 h-4 w-4" />
+                     <span>Theme</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={() => setTheme('theme-default')}>Default</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTheme('theme-forest')}>Forest</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTheme('theme-sky')}>Sky</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTheme('theme-rose')}>Rose</DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              </DropdownMenuContent>
+            </DropdownMenu>
            <div className="flex items-center gap-2">
             <Languages className="w-5 h-5 text-muted-foreground hidden sm:block" />
             <Select value={language} onValueChange={setLanguage}>
