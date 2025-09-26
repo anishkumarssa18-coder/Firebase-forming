@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -223,16 +224,18 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-full">
                 <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
+                  <SheetTitle>{t('header.menu')}</SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col gap-6 pt-10">
-                  {navLinks.map((link) => (
-                    <NavLink key={link.href} href={link.href} labelKey={link.labelKey} icon={link.icon} isMobile />
-                  ))}
-                   <div className="mt-auto pt-6 border-t">
+                <div className="flex h-full flex-col">
+                  <div className="flex flex-col gap-4 pt-8">
+                    {navLinks.map((link) => (
+                      <NavLink key={link.href} href={link.href} labelKey={link.labelKey} icon={link.icon} isMobile />
+                    ))}
+                  </div>
+                  <div className="mt-auto pt-6 border-t">
                   {user ? (
                     <div className='space-y-4'>
-                      <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 text-lg font-medium">
+                      <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium transition-colors hover:bg-accent">
                         <Avatar>
                             <AvatarImage src={user.photoURL || undefined} alt={user.displayName || t('header.user')} />
                             <AvatarFallback>{user.displayName ? user.displayName[0].toUpperCase() : <User />}</AvatarFallback>
@@ -242,20 +245,20 @@ export function Header() {
                             <p className="text-sm text-muted-foreground">{user.email}</p>
                         </div>
                       </Link>
-                      <Button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="w-full justify-start text-lg">
+                      <Button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} variant="outline" className="w-full justify-start text-lg">
                         <LogOut className="mr-2 h-5 w-5" />
                         {t('header.logout')}
                       </Button>
                     </div>
                   ) : (
-                    <Button asChild className="w-full justify-start text-lg">
+                    <Button asChild className="w-full justify-start text-lg" size="lg">
                       <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                         <LogIn className="mr-2 h-5 w-5" />
                         {t('header.loginSignup')}
                       </Link>
                     </Button>
                   )}
-                </div>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
