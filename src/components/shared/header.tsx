@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { signOut } from 'firebase/auth';
 
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { auth } from '@/lib/firebase';
