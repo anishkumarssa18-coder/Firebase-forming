@@ -274,6 +274,95 @@
     --input: 25 20% 28%;
     --ring: 30 80% 65%;
   }
+  
+  .theme-lavender {
+    --background: 255 30% 96%;
+    --foreground: 255 20% 15%;
+    --card: 255 30% 100%;
+    --card-foreground: 255 20% 15%;
+    --popover: 255 30% 100%;
+    --popover-foreground: 255 20% 15%;
+    --primary: 255 60% 60%;
+    --primary-foreground: 255 20% 98%;
+    --secondary: 255 40% 92%;
+    --secondary-foreground: 255 30% 20%;
+    --muted: 255 40% 95%;
+    --muted-foreground: 255 20% 40%;
+    --accent: 255 50% 88%;
+    --accent-foreground: 255 30% 15%;
+    --destructive: 0 80% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 255 30% 85%;
+    --input: 255 30% 85%;
+    --ring: 255 60% 60%;
+  }
+
+  .dark.theme-lavender {
+    --background: 255 10% 10%;
+    --foreground: 255 15% 90%;
+    --card: 255 10% 14%;
+    --card-foreground: 255 15% 90%;
+    --popover: 255 10% 14%;
+    --popover-foreground: 255 15% 90%;
+    --primary: 255 50% 65%;
+    --primary-foreground: 255 10% 98%;
+    --secondary: 255 15% 22%;
+    --secondary-foreground: 255 10% 90%;
+    --muted: 255 15% 24%;
+    --muted-foreground: 255 10% 65%;
+    --accent: 255 20% 28%;
+    --accent-foreground: 255 10% 90%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 255 15% 28%;
+    --input: 255 15% 28%;
+    --ring: 255 50% 65%;
+  }
+  
+  .theme-sunflower {
+    --background: 45 100% 96%;
+    --foreground: 40 30% 15%;
+    --card: 45 100% 98%;
+    --card-foreground: 40 30% 15%;
+    --popover: 45 100% 98%;
+    --popover-foreground: 40 30% 15%;
+    --primary: 45 95% 55%;
+    --primary-foreground: 45 30% 10%;
+    --secondary: 45 80% 90%;
+    --secondary-foreground: 40 30% 20%;
+    --muted: 45 80% 94%;
+    --muted-foreground: 40 30% 40%;
+    --accent: 45 90% 85%;
+    --accent-foreground: 40 40% 15%;
+    --destructive: 0 80% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 45 60% 85%;
+    --input: 45 60% 85%;
+    --ring: 45 95% 55%;
+  }
+  
+  .dark.theme-sunflower {
+    --background: 40 20% 8%;
+    --foreground: 45 25% 90%;
+    --card: 40 20% 12%;
+    --card-foreground: 45 25% 90%;
+    --popover: 40 20% 12%;
+    --popover-foreground: 45 25% 90%;
+    --primary: 45 85% 60%;
+    --primary-foreground: 45 20% 5%;
+    --secondary: 40 25% 20%;
+    --secondary-foreground: 45 20% 90%;
+    --muted: 40 25% 22%;
+    --muted-foreground: 45 20% 65%;
+    --accent: 40 30% 25%;
+    --accent-foreground: 45 20% 90%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 40 25% 25%;
+    --input: 40 25% 25%;
+    --ring: 45 85% 60%;
+  }
+
 }
 
 @layer base {

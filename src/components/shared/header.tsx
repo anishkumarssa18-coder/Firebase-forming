@@ -154,6 +154,8 @@ export function Header() {
                       <DropdownMenuItem onClick={() => setTheme('theme-rose')}>Rose</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setTheme('theme-ocean')}>Ocean</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setTheme('theme-sunset')}>Sunset</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTheme('theme-lavender')}>Lavender</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTheme('theme-sunflower')}>Sunflower</DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
