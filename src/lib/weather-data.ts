@@ -7,6 +7,7 @@ export type CurrentWeather = {
   condition: string;
   wind: string;
   humidity: string;
+  windSpeed: number;
 };
 
 export type ForecastDay = {
@@ -103,6 +104,7 @@ export async function getRealTimeWeather(
       condition: weatherData.weather[0].main,
       wind: `${weatherData.wind.speed} km/h`,
       humidity: `${weatherData.main.humidity}%`,
+      windSpeed: weatherData.wind.speed,
     };
 
     const forecast: ForecastDay[] = forecastData.list.map((day: any) => {
@@ -129,6 +131,7 @@ export async function getRealTimeWeather(
         condition: 'Sunny',
         wind: '10 km/h',
         humidity: '60%',
+        windSpeed: 10,
       },
       forecast: [
         { day: 'Mon', temp: 26, condition: 'Sunny' },

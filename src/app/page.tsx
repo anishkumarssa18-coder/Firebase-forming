@@ -7,7 +7,7 @@ import { ArrowRight, Cloud, Droplets, Sun, Thermometer, Wind, CloudRain, LocateF
 import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from '@/context/language-context';
-import { WeatherAlerts } from './components/weather-alerts';
+import { useToast } from '@/hooks/use-toast';
 
 const defaultWeather: {
   currentWeather: CurrentWeather,
@@ -19,15 +19,64 @@ const defaultWeather: {
     condition: '...',
     wind: '... km/h',
     humidity: '...%',
+    windSpeed: 0,
   },
   forecast: Array(7).fill({ day: '...', temp: 0, condition: 'Cloudy' })
 };
+
+const WIND_THRESHOLD = 30; // km/h
+const HEAT_THRESHOLD = 35; // °C
+const COLD_THRESHOLD = 5; // °C
 
 export default function Home() {
   const [weather, setWeather] = useState(defaultWeather);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!loading && weather.currentWeather.location !== 'Loading...') {
+        const { windSpeed, temperature, condition } = weather.currentWeather;
+
+        if (windSpeed > WIND_THRESHOLD) {
+            toast({
+                variant: 'destructive',
+                title: 'High Wind Alert',
+                description: `Strong winds of ${weather.currentWeather.wind} detected. This may cause damage to tall crops or lightweight structures.`,
+                duration: 8000,
+            });
+        }
+
+        if (temperature > HEAT_THRESHOLD) {
+            toast({
+                variant: 'destructive',
+                title: 'Heatwave Alert',
+                description: `Extreme heat of ${temperature}°C expected. Ensure crops are well-irrigated to prevent heat stress.`,
+                duration: 8000,
+            });
+        }
+
+        if (temperature < COLD_THRESHOLD) {
+            toast({
+                variant: 'destructive',
+                title: 'Cold Snap Alert',
+                description: `Low temperatures of ${temperature}°C detected. Protect sensitive crops from potential frost damage.`,
+                duration: 8000,
+            });
+        }
+        
+        if (condition.toLowerCase().includes('rain')) {
+            toast({
+                variant: 'destructive',
+                title: 'Heavy Rain Warning',
+                description: 'Heavy rainfall is occurring. Be aware of potential for waterlogging in fields and plan drainage accordingly.',
+                duration: 8000,
+            });
+        }
+    }
+  }, [weather.currentWeather, loading, toast, t]);
+
 
   const fetchWeatherForLocation = useCallback(async (lat: number, lon: number) => {
     setError(null);
@@ -86,7 +135,6 @@ export default function Home() {
 
   return (
     <div className="space-y-12">
-      {!loading && <WeatherAlerts weather={currentWeather} />}
       <section className="text-center">
         <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight text-primary">
           {t('home.welcome')}
