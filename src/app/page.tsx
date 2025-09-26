@@ -90,26 +90,15 @@ export default function Home() {
         <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
           Your AI-powered partner for smarter farming. Get instant advice, weather updates, and disease diagnosis to maximize your yield.
         </p>
-      </section>
-
-      <section className="space-y-6">
-        <div className="flex justify-center items-center gap-4">
-          <h2 className="text-2xl md:text-3xl font-bold font-headline text-center">
-            Today's Weather
-          </h2>
-          <Button variant="ghost" size="icon" onClick={getLocation} disabled={loading}>
-            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <LocateFixed className="w-6 h-6" />}
-            <span className="sr-only">Refresh Location</span>
-          </Button>
-        </div>
-
-        {error && !loading && <p className="text-center text-yellow-600 dark:text-yellow-400">{error}</p>}
         
-        <Card className="max-w-md mx-auto shadow-lg border-2 border-primary/20">
+        <Card className="max-w-md mx-auto shadow-lg border-2 border-primary/20 mt-8">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>{loading ? 'Fetching location...' : currentWeather.location}</span>
-              {!loading && <WeatherIcon condition={currentWeather.condition} className="w-8 h-8 text-yellow-500" />}
+              <Button variant="ghost" size="icon" onClick={getLocation} disabled={loading} className="w-8 h-8">
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LocateFixed className="w-5 h-5" />}
+                  <span className="sr-only">Refresh Location</span>
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -121,20 +110,24 @@ export default function Home() {
             ) : (
                 <>
                     <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Thermometer className="w-6 h-6 text-primary" />
-                        <span className="text-4xl font-bold">{currentWeather.temperature}°C</span>
-                    </div>
-                    <p className="text-lg text-muted-foreground">{currentWeather.condition}</p>
+                      <div className="flex items-center gap-2">
+                          <Thermometer className="w-6 h-6 text-primary" />
+                          <span className="text-4xl font-bold">{currentWeather.temperature}°C</span>
+                      </div>
+                      <div className='flex flex-col items-center'>
+                          <WeatherIcon condition={currentWeather.condition} className="w-8 h-8 text-yellow-500" />
+                          <p className="text-lg text-muted-foreground">{currentWeather.condition}</p>
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2"><Wind className="w-4 h-4 text-muted-foreground" /> Wind: {currentWeather.wind}</div>
-                    <div className="flex items-center gap-2"><Droplets className="w-4 h-4 text-muted-foreground" /> Humidity: {currentWeather.humidity}</div>
+                      <div className="flex items-center gap-2"><Wind className="w-4 h-4 text-muted-foreground" /> Wind: {currentWeather.wind}</div>
+                      <div className="flex items-center gap-2"><Droplets className="w-4 h-4 text-muted-foreground" /> Humidity: {currentWeather.humidity}</div>
                     </div>
                 </>
             )}
           </CardContent>
         </Card>
+        {error && !loading && <p className="text-center text-yellow-600 dark:text-yellow-400 mt-2">{error}</p>}
       </section>
 
       <section className="space-y-6">
