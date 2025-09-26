@@ -11,11 +11,15 @@ import {
   LogOut,
   LogIn,
   Languages,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { signOut } from 'firebase/auth';
+import { useTheme } from 'next-themes';
+
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -55,6 +59,8 @@ export function Header() {
   const router = useRouter();
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const { setTheme } = useTheme();
+
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -106,6 +112,26 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+           <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme('light')}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('dark')}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('system')}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
            <div className="flex items-center gap-2">
             <Languages className="w-5 h-5 text-muted-foreground hidden sm:block" />
             <Select value={language} onValueChange={setLanguage}>
@@ -173,7 +199,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-full">
                 <SheetHeader>
-                  <SheetTitle>{t('header.menu')}</SheetTitle>
+                  <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-6 pt-10">
                   {navLinks.map((link) => (
