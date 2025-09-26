@@ -1,12 +1,79 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getCurrentWeather, getForecast } from '@/lib/weather-data';
-import { ArrowRight, Cloud, Droplets, Sun, Thermometer, Wind, CloudRain } from 'lucide-react';
+import { getRealTimeWeather, type CurrentWeather, type ForecastDay } from '@/lib/weather-data';
+import { ArrowRight, Cloud, Droplets, Sun, Thermometer, Wind, CloudRain, LocateFixed } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+const defaultWeather: {
+  currentWeather: CurrentWeather,
+  forecast: ForecastDay[]
+} = {
+  currentWeather: {
+    location: 'Loading...',
+    temperature: 0,
+    condition: '...',
+    wind: '... km/h',
+    humidity: '...%',
+  },
+  forecast: Array(7).fill({ day: '...', temp: 0, condition: 'Cloudy' })
+};
 
 export default function Home() {
-  const currentWeather = getCurrentWeather();
-  const forecast = getForecast();
+  const [weather, setWeather] = useState(defaultWeather);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchWeatherForLocation = (lat: number, lon: number) => {
+    setError(null);
+    getRealTimeWeather(lat, lon)
+      .then(setWeather)
+      .catch(() => {
+        setError('Could not fetch weather data. Please try again.');
+      });
+  };
+
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchWeatherForLocation(position.coords.latitude, position.coords.longitude);
+        },
+        () => {
+          setError('Location access denied. Please enable it in your browser settings.');
+          // Fallback to a default location (e.g., Delhi, IN)
+          fetchWeatherForLocation(28.6139, 77.2090);
+        }
+      );
+    } else {
+      setError('Geolocation is not supported by this browser.');
+      // Fallback to a default location
+      fetchWeatherForLocation(28.6139, 77.2090);
+    }
+  };
+
+  useEffect(() => {
+    getLocation();
+  }, []);
+
+  const { currentWeather, forecast } = weather;
+
+  const WeatherIcon = ({ condition, className }: { condition: string, className?: string }) => {
+    switch (condition?.toLowerCase()) {
+      case 'sunny':
+      case 'clear':
+        return <Sun className={className} />;
+      case 'clouds':
+      case 'cloudy':
+        return <Cloud className={className} />;
+      case 'rain':
+      case 'rainy':
+        return <CloudRain className={className} />;
+      default:
+        return <Cloud className={className} />;
+    }
+  };
 
   return (
     <div className="space-y-12">
@@ -20,14 +87,23 @@ export default function Home() {
       </section>
 
       <section className="space-y-6">
-        <h2 className="text-2xl md:text-3xl font-bold font-headline text-center">
-          Today's Weather in Your Area
-        </h2>
+        <div className="flex justify-center items-center gap-4">
+          <h2 className="text-2xl md:text-3xl font-bold font-headline text-center">
+            Today's Weather
+          </h2>
+          <Button variant="ghost" size="icon" onClick={getLocation}>
+            <LocateFixed className="w-6 h-6" />
+            <span className="sr-only">Refresh Location</span>
+          </Button>
+        </div>
+
+        {error && <p className="text-center text-red-500">{error}</p>}
+        
         <Card className="max-w-md mx-auto shadow-lg border-2 border-primary/20">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>{currentWeather.location}</span>
-              <Sun className="w-8 h-8 text-yellow-500" />
+              <WeatherIcon condition={currentWeather.condition} className="w-8 h-8 text-yellow-500" />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -51,13 +127,11 @@ export default function Home() {
           7-Day Forecast
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-          {forecast.map((day) => (
-            <Card key={day.day} className="flex flex-col items-center p-4 shadow-md transition-transform hover:scale-105 hover:shadow-xl">
+          {forecast.map((day, index) => (
+            <Card key={index} className="flex flex-col items-center p-4 shadow-md transition-transform hover:scale-105 hover:shadow-xl">
               <p className="font-bold">{day.day}</p>
               <div className="my-2">
-                {day.condition === 'Sunny' && <Sun className="w-8 h-8 text-yellow-500" />}
-                {day.condition === 'Cloudy' && <Cloud className="w-8 h-8 text-gray-400" />}
-                {day.condition === 'Rainy' && <CloudRain className="w-8 h-8 text-blue-500" />}
+                <WeatherIcon condition={day.condition} className="w-8 h-8 text-gray-400" />
               </div>
               <p className="font-semibold">{day.temp}°C</p>
             </Card>
