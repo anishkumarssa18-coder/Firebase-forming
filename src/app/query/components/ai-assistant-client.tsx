@@ -5,30 +5,22 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Bot, Languages, Send, User } from 'lucide-react';
 import { useState, useTransition, useRef, useEffect } from 'react';
+import { useLanguage } from '@/context/language-context';
+
 
 type Message = {
   role: 'user' | 'assistant';
   content: string;
 };
 
-const languages = [
-  { value: 'English', label: 'English' },
-  { value: 'Hindi', label: 'हिन्दी' },
-  { value: 'Marathi', label: 'मराठी' },
-  { value: 'Bengali', label: 'বাংলা' },
-  { value: 'Telugu', label: 'తెలుగు' },
-  { value: 'Tamil', label: 'தமிழ்' },
-];
-
 export function AiAssistantClient() {
   const [conversation, setConversation] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [language, setLanguage] = useState('English');
+  const { language } = useLanguage();
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -68,21 +60,6 @@ export function AiAssistantClient() {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Chat with our Expert AI</span>
-          <div className="flex items-center gap-2">
-            <Languages className="w-5 h-5 text-muted-foreground" />
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Language" />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((lang) => (
-                  <SelectItem key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>

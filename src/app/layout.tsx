@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Header } from '@/components/shared/header';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/context/auth-context';
+import { LanguageProvider } from '@/context/language-context';
 
 export const metadata: Metadata = {
   title: 'Farming Master',
@@ -27,11 +28,13 @@ export default function RootLayout({
       </head>
       <body className={cn('font-body antialiased min-h-screen flex flex-col')}>
         <AuthProvider>
-          <Header />
-          <main className="flex-1 container mx-auto px-4 py-8">
-            {children}
-          </main>
-          <Toaster />
+          <LanguageProvider>
+            <Header />
+            <main className="flex-1 container mx-auto px-4 py-8">
+              {children}
+            </main>
+            <Toaster />
+          </LanguageProvider>
         </AuthProvider>
       </body>
     </html>

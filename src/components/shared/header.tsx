@@ -10,6 +10,7 @@ import {
   User,
   LogOut,
   LogIn,
+  Languages,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -30,6 +31,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { useLanguage, languages } from '@/context/language-context';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
 
 const navLinks = [
   { href: '/', label: 'Home', icon: Home },
@@ -43,6 +53,7 @@ export function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
+  const { language, setLanguage } = useLanguage();
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -94,6 +105,21 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+           <div className="flex items-center gap-2">
+            <Languages className="w-5 h-5 text-muted-foreground hidden sm:block" />
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Language" />
+              </SelectTrigger>
+              <SelectContent>
+                {languages.map((lang) => (
+                  <SelectItem key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
            {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
