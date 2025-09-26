@@ -63,7 +63,7 @@
     "analysisFailedDescription": "Could not get a diagnosis. Please try again."
   },
   "advisory": {
-    "title": "Advisory Knowledge Hub",
+    "title": "Knowledge Hub",
     "description": "Your one-stop resource for farming knowledge and best practices.",
     "searchPlaceholder": "Search articles...",
     "all": "All",
