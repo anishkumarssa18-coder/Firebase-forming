@@ -86,6 +86,7 @@ export default function Home() {
 
   return (
     <div className="space-y-12">
+      {!loading && <WeatherAlerts weather={currentWeather} />}
       <section className="text-center">
         <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight text-primary">
           {t('home.welcome')}
@@ -157,12 +158,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      {!loading && (
-        <section>
-          <WeatherAlerts weather={currentWeather} />
-        </section>
-      )}
 
       <section className="text-center py-8">
         <Card className="bg-primary/10 border-primary/20 max-w-4xl mx-auto p-8">
