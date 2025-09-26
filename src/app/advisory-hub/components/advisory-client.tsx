@@ -78,7 +78,7 @@ export function AdvisoryClient({ articles, categories }: AdvisoryClientProps) {
                   alt={article.title}
                   fill
                   style={{ objectFit: 'cover' }}
-                  className="transition-opacity opacity-0 duration-[2s]"
+                  className="transition-opacity opacity-0 duration-1000"
                   onLoad={event => event.currentTarget.classList.remove('opacity-0')}
                   data-ai-hint={article.imageHint}
                 />
