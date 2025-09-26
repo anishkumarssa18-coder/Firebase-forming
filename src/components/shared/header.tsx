@@ -146,7 +146,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-full">
                 <SheetHeader>
-                  <SheetTitle className="sr-only">Menu</SheetTitle>
+                  <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-6 pt-10">
                   {navLinks.map((link) => (
