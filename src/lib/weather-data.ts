@@ -30,7 +30,47 @@ const weatherConditionMap = {
   default: 'Cloudy',
 };
 
-const openWeatherMapApiKey = process.env.OPENWEATHERMAP_API_KEY || '92e82245a9d3c85a211341a7e44f43c8';
+const openWeatherMapApiKey = process.env.OPENWEATHERMAP_API_KEY;
+const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+
+
+async function getCityName(lat: number, lon: number): Promise<string> {
+    if (!googleMapsApiKey) {
+        console.warn('Google Maps API key is not configured. Falling back to OpenWeatherMap location name.');
+        return '';
+    }
+
+    try {
+        const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${googleMapsApiKey}`
+        );
+        if (!response.ok) {
+            throw new Error(`Google Geocoding API fetch failed: ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (data.status !== 'OK' || !data.results?.[0]) {
+            throw new Error(`Google Geocoding API error: ${data.status} - ${data.error_message || 'No results found.'}`);
+        }
+        
+        // Find a suitable address component, like locality or administrative_area_level_2
+        const address = data.results[0].formatted_address;
+        const cityComponent = data.results[0].address_components.find(
+          (c: any) => c.types.includes('locality') || c.types.includes('administrative_area_level_2')
+        );
+        const countryComponent = data.results[0].address_components.find(
+            (c: any) => c.types.includes('country')
+        );
+
+        if (cityComponent && countryComponent) {
+            return `${cityComponent.long_name}, ${countryComponent.short_name}`;
+        }
+
+        return address || 'Unknown Location';
+    } catch (error) {
+        console.error('Error fetching city name from Google:', error);
+        return ''; // Return empty string to allow fallback
+    }
+}
 
 
 export async function getRealTimeWeather(
@@ -65,9 +105,10 @@ export async function getRealTimeWeather(
     const weatherData = await weatherResponse.json();
     const forecastData = await forecastResponse.json();
 
-    const locationName = weatherData.name && weatherData.sys.country 
+    const preciseCityName = await getCityName(lat, lon);
+    const locationName = preciseCityName || (weatherData.name && weatherData.sys.country 
         ? `${weatherData.name}, ${weatherData.sys.country}` 
-        : fallbackCityName;
+        : fallbackCityName);
 
     const currentWeather: CurrentWeather = {
       location: locationName || "Unknown Location",
