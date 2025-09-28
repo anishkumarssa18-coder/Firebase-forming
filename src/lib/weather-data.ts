@@ -52,8 +52,6 @@ async function getCityName(lat: number, lon: number): Promise<string> {
             throw new Error(`Google Geocoding API error: ${data.status} - ${data.error_message || 'No results found.'}`);
         }
         
-        // Find a suitable address component, like locality or administrative_area_level_2
-        const address = data.results[0].formatted_address;
         const cityComponent = data.results[0].address_components.find(
           (c: any) => c.types.includes('locality') || c.types.includes('administrative_area_level_2')
         );
@@ -65,7 +63,8 @@ async function getCityName(lat: number, lon: number): Promise<string> {
             return `${cityComponent.long_name}, ${countryComponent.short_name}`;
         }
 
-        return address || 'Unknown Location';
+        // Fallback to a formatted address if specific components aren't found
+        return data.results[0].formatted_address || '';
     } catch (error) {
         console.error('Error fetching city name from Google:', error);
         return ''; // Return empty string to allow fallback
@@ -81,6 +80,22 @@ export async function getRealTimeWeather(
   currentWeather: CurrentWeather;
   forecast: ForecastDay[];
 }> {
+  if (!openWeatherMapApiKey) {
+    console.error('OpenWeatherMap API key is missing.');
+    // Return default data to prevent app crash
+    return {
+      currentWeather: {
+        location: 'API Key Missing',
+        temperature: 0,
+        condition: '...',
+        wind: '... km/h',
+        humidity: '...%',
+        windSpeed: 0,
+      },
+      forecast: Array(7).fill({ day: '...', temp: 0, condition: 'Cloudy' }),
+    };
+  }
+
   try {
     const [weatherResponse, forecastResponse] = await Promise.all([
       fetch(
@@ -104,14 +119,16 @@ export async function getRealTimeWeather(
 
     const weatherData = await weatherResponse.json();
     const forecastData = await forecastResponse.json();
-
+    
     const preciseCityName = await getCityName(lat, lon);
-    const locationName = preciseCityName || (weatherData.name && weatherData.sys.country 
+    const openWeatherCityName = weatherData.name && weatherData.sys.country 
         ? `${weatherData.name}, ${weatherData.sys.country}` 
-        : fallbackCityName);
+        : '';
+        
+    const locationName = preciseCityName || openWeatherCityName || fallbackCityName;
 
     const currentWeather: CurrentWeather = {
-      location: locationName || "Unknown Location",
+      location: locationName || 'Unknown Location',
       temperature: Math.round(weatherData.main.temp),
       condition: weatherData.weather[0].main,
       wind: `${weatherData.wind.speed} km/h`,
@@ -135,11 +152,12 @@ export async function getRealTimeWeather(
     return { currentWeather, forecast };
   } catch (error) {
     console.error('Failed to get real-time weather:', error);
+    // Provide a structured fallback in case of any error
     return {
       currentWeather: {
-        location: fallbackCityName || 'Default Location',
+        location: fallbackCityName || 'Error Loading Weather',
         temperature: 25,
-        condition: 'Sunny',
+        condition: 'Cloudy',
         wind: '10 km/h',
         humidity: '60%',
         windSpeed: 10,
