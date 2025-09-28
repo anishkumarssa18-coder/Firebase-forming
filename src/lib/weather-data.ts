@@ -32,40 +32,6 @@ const weatherConditionMap = {
 
 const openWeatherMapApiKey = process.env.OPENWEATHERMAP_API_KEY || '92e82245a9d3c85a211341a7e44f43c8';
 
-async function getCityName(lat: number, lon: number): Promise<string> {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    console.error('Google Maps API key is missing');
-    return 'Unknown Location';
-  }
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${apiKey}`;
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    if (data.results && data.results.length > 0) {
-      const addressComponents = data.results[0].address_components;
-      const city = addressComponents.find((c: any) =>
-        c.types.includes('locality')
-      );
-      const state = addressComponents.find((c: any) =>
-        c.types.includes('administrative_area_level_1')
-      );
-      if (city && state) {
-        return `${city.long_name}, ${state.short_name}`;
-      }
-      // Fallback to a broader location if city/state not found
-      const area = addressComponents.find((c: any) => c.types.includes('administrative_area_level_2')) || addressComponents.find((c: any) => c.types.includes('political'));
-      if (area) {
-        return area.long_name;
-      }
-      return data.results[0].formatted_address;
-    }
-    return 'Unknown Location';
-  } catch (error) {
-    console.error('Error fetching city name:', error);
-    return 'Unknown Location';
-  }
-}
 
 export async function getRealTimeWeather(
   lat: number,
@@ -76,14 +42,13 @@ export async function getRealTimeWeather(
   forecast: ForecastDay[];
 }> {
   try {
-    const [weatherResponse, forecastResponse, cityName] = await Promise.all([
+    const [weatherResponse, forecastResponse] = await Promise.all([
       fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${openWeatherMapApiKey}&units=metric`
       ),
       fetch(
         `https://api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=7&appid=${openWeatherMapApiKey}&units=metric`
       ),
-      getCityName(lat, lon),
     ]);
 
     if (!weatherResponse.ok) {
@@ -100,8 +65,12 @@ export async function getRealTimeWeather(
     const weatherData = await weatherResponse.json();
     const forecastData = await forecastResponse.json();
 
+    const locationName = weatherData.name && weatherData.sys.country 
+        ? `${weatherData.name}, ${weatherData.sys.country}` 
+        : fallbackCityName;
+
     const currentWeather: CurrentWeather = {
-      location: cityName === 'Unknown Location' && fallbackCityName ? fallbackCityName : cityName,
+      location: locationName || "Unknown Location",
       temperature: Math.round(weatherData.main.temp),
       condition: weatherData.weather[0].main,
       wind: `${weatherData.wind.speed} km/h`,

@@ -35,6 +35,41 @@ export default function Home() {
   const { t } = useTranslation();
   const { toast } = useToast();
 
+  const fetchWeatherForLocation = useCallback(async (lat: number, lon: number, fallbackCityName?: string) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const weatherData = await getRealTimeWeather(lat, lon, fallbackCityName);
+      setWeather(weatherData);
+    } catch (err) {
+      setError(t('home.weatherError'));
+    } finally {
+      setLoading(false);
+    }
+  }, [t]);
+
+  const requestLocationAndUpdateWeather = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchWeatherForLocation(position.coords.latitude, position.coords.longitude);
+        },
+        () => {
+          toast({
+            variant: 'default',
+            title: t('home.locationDenied'),
+            description: "Showing weather for the default location."
+          });
+        }
+      );
+    }
+  }, [fetchWeatherForLocation, t, toast]);
+
+  useEffect(() => {
+    // Load default weather on initial load
+    fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
+  }, [fetchWeatherForLocation]);
+
   useEffect(() => {
     if (!loading && weather.currentWeather.location !== 'Loading...') {
         const { windSpeed, temperature, condition } = weather.currentWeather;
@@ -76,61 +111,21 @@ export default function Home() {
         }
     }
   }, [weather.currentWeather, loading, toast, t]);
-
-
-  const fetchWeatherForLocation = useCallback(async (lat: number, lon: number, fallbackCityName?: string) => {
-    setError(null);
-    setLoading(true);
-    try {
-      const weatherData = await getRealTimeWeather(lat, lon, fallbackCityName);
-      setWeather(weatherData);
-    } catch (err) {
-      setError(t('home.weatherError'));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
-
-  const getLocation = useCallback(() => {
-    setLoading(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          fetchWeatherForLocation(position.coords.latitude, position.coords.longitude);
-        },
-        () => {
-          setError(t('home.locationDenied'));
-          // Fallback to a default location (e.g., Delhi, IN)
-          fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
-        }
-      );
-    } else {
-      setError(t('home.geolocationNotSupported'));
-      // Fallback to a default location
-      fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
-    }
-  }, [fetchWeatherForLocation, t]);
-
-  useEffect(() => {
-    getLocation();
-  }, [getLocation]);
-
+  
   const { currentWeather, forecast } = weather;
 
   const WeatherIcon = ({ condition, className }: { condition: string, className?: string }) => {
-    switch (condition?.toLowerCase()) {
-      case 'sunny':
-      case 'clear':
-        return <Sun className={className} />;
-      case 'clouds':
-      case 'cloudy':
-        return <Cloud className={className} />;
-      case 'rain':
-      case 'rainy':
-        return <CloudRain className={className} />;
-      default:
-        return <Cloud className={className} />;
+    const lowerCaseCondition = condition?.toLowerCase() || '';
+    if (lowerCaseCondition.includes('sun') || lowerCaseCondition.includes('clear')) {
+      return <Sun className={className} />;
     }
+    if (lowerCaseCondition.includes('cloud')) {
+      return <Cloud className={className} />;
+    }
+    if (lowerCaseCondition.includes('rain')) {
+      return <CloudRain className={className} />;
+    }
+    return <Cloud className={className} />;
   };
 
   return (
@@ -147,7 +142,7 @@ export default function Home() {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>{loading ? t('home.fetchingLocation') : currentWeather.location}</span>
-              <Button variant="ghost" size="icon" onClick={getLocation} disabled={loading} className="w-8 h-8">
+              <Button variant="ghost" size="icon" onClick={requestLocationAndUpdateWeather} disabled={loading} className="w-8 h-8">
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LocateFixed className="w-5 h-5" />}
                   <span className="sr-only">{t('home.refreshLocation')}</span>
               </Button>
