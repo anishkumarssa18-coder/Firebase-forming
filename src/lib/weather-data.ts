@@ -1,4 +1,5 @@
 
+
 'use server';
 
 export type CurrentWeather = {
@@ -29,7 +30,7 @@ const weatherConditionMap = {
   default: 'Cloudy',
 };
 
-const openWeatherMapApiKey = '92e82245a9d3c85a211341a7e44f43c8';
+const openWeatherMapApiKey = process.env.OPENWEATHERMAP_API_KEY || '92e82245a9d3c85a211341a7e44f43c8';
 
 async function getCityName(lat: number, lon: number): Promise<string> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -68,7 +69,8 @@ async function getCityName(lat: number, lon: number): Promise<string> {
 
 export async function getRealTimeWeather(
   lat: number,
-  lon: number
+  lon: number,
+  fallbackCityName?: string
 ): Promise<{
   currentWeather: CurrentWeather;
   forecast: ForecastDay[];
@@ -99,7 +101,7 @@ export async function getRealTimeWeather(
     const forecastData = await forecastResponse.json();
 
     const currentWeather: CurrentWeather = {
-      location: cityName,
+      location: cityName === 'Unknown Location' && fallbackCityName ? fallbackCityName : cityName,
       temperature: Math.round(weatherData.main.temp),
       condition: weatherData.weather[0].main,
       wind: `${weatherData.wind.speed} km/h`,
@@ -123,10 +125,9 @@ export async function getRealTimeWeather(
     return { currentWeather, forecast };
   } catch (error) {
     console.error('Failed to get real-time weather:', error);
-    // Provide a more generic default location
     return {
       currentWeather: {
-        location: 'Default Location',
+        location: fallbackCityName || 'Default Location',
         temperature: 25,
         condition: 'Sunny',
         wind: '10 km/h',

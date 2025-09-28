@@ -78,11 +78,11 @@ export default function Home() {
   }, [weather.currentWeather, loading, toast, t]);
 
 
-  const fetchWeatherForLocation = useCallback(async (lat: number, lon: number) => {
+  const fetchWeatherForLocation = useCallback(async (lat: number, lon: number, fallbackCityName?: string) => {
     setError(null);
     setLoading(true);
     try {
-      const weatherData = await getRealTimeWeather(lat, lon);
+      const weatherData = await getRealTimeWeather(lat, lon, fallbackCityName);
       setWeather(weatherData);
     } catch (err) {
       setError(t('home.weatherError'));
@@ -101,13 +101,13 @@ export default function Home() {
         () => {
           setError(t('home.locationDenied'));
           // Fallback to a default location (e.g., Delhi, IN)
-          fetchWeatherForLocation(28.6139, 77.2090);
+          fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
         }
       );
     } else {
       setError(t('home.geolocationNotSupported'));
       // Fallback to a default location
-      fetchWeatherForLocation(28.6139, 77.2090);
+      fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
     }
   }, [fetchWeatherForLocation, t]);
 
