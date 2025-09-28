@@ -3,7 +3,7 @@ import { advisoryArticles, advisoryCategories } from '@/lib/advisory-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { AdvisoryClient } from './components/advisory-client';
 import { useTranslation } from '@/context/language-context';
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 
 // Function to shuffle an array
 function shuffle<T>(array: T[]): T[] {
@@ -27,20 +27,26 @@ function shuffle<T>(array: T[]): T[] {
 
 export default function AdvisoryHubPage() {
   const { t } = useTranslation();
+  
+  const [shuffledArticles, setShuffledArticles] = useState([...advisoryArticles]);
 
-  const shuffledArticles = useMemo(() => shuffle([...advisoryArticles]), []);
+  useEffect(() => {
+    setShuffledArticles(shuffle([...advisoryArticles]));
+  }, []);
 
-  const articlesWithImages = shuffledArticles.map((article) => {
-    const image = PlaceHolderImages.find((img) => img.id === article.imageId);
-    return {
-      ...article,
-      title: t(`advisory.articles.${article.id}.title`),
-      summary: t(`advisory.articles.${article.id}.summary`),
-      category: t(`advisory.categories.${article.category.replace(' ', '')}`),
-      imageUrl: image?.imageUrl || 'https://picsum.photos/seed/placeholder/600/400',
-      imageHint: image?.imageHint || 'farming',
-    };
-  });
+  const articlesWithImages = useMemo(() => {
+    return shuffledArticles.map((article) => {
+      const image = PlaceHolderImages.find((img) => img.id === article.imageId);
+      return {
+        ...article,
+        title: t(`advisory.articles.${article.id}.title`),
+        summary: t(`advisory.articles.${article.id}.summary`),
+        category: t(`advisory.categories.${article.category.replace(' ', '')}`),
+        imageUrl: image?.imageUrl || 'https://picsum.photos/seed/placeholder/600/400',
+        imageHint: image?.imageHint || 'farming',
+      };
+    });
+  }, [shuffledArticles, t]);
   
   const translatedCategories = advisoryCategories.map(cat => t(`advisory.categories.${cat.replace(' ', '')}`));
 
