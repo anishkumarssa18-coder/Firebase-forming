@@ -60,10 +60,8 @@ export default function Home() {
             title: t('home.locationDenied'),
             description: "Showing weather for the default location."
           });
-          // On denial, explicitly fetch for default location if not already done
-          if (weather.currentWeather.location === 'Loading...' || weather.currentWeather.location === 'Error Loading Weather') {
-             fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
-          }
+          // On denial, explicitly fetch for default location
+          fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
         }
       );
     } else {
@@ -74,7 +72,7 @@ export default function Home() {
         });
         fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
     }
-  }, [fetchWeatherForLocation, t, toast, weather.currentWeather.location]);
+  }, [fetchWeatherForLocation, t, toast]);
 
   useEffect(() => {
     requestLocationAndUpdateWeather();

@@ -110,7 +110,7 @@ export async function getRealTimeWeather(
     // Provide a structured fallback in case of any error
     return {
       currentWeather: {
-        location: fallbackCityName || 'Error Loading Weather',
+        location: fallbackCityName || 'Default Location',
         temperature: 25,
         condition: 'Cloudy',
         wind: '10 km/h',
