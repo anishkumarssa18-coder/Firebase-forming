@@ -8,7 +8,7 @@ import { LanguageProvider } from '@/context/language-context';
 import { ThemeProvider } from '@/context/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'Farming Master',
+  title: 'Farming Expert',
   description: 'AI-powered query support & advisory system for farmers.',
 };
 

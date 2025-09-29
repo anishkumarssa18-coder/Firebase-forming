@@ -1,6 +1,6 @@
 {
   "header": {
-    "title": "Farming Master",
+    "title": "Farming Expert",
     "home": "Home",
     "aiQuery": "AI Query",
     "advisoryHub": "Advisory Hub",
@@ -15,7 +15,7 @@
     "loginSignup": "Login / Sign Up"
   },
   "home": {
-    "welcome": "Welcome to Farming Master",
+    "welcome": "Welcome to Farming Expert",
     "tagline": "Your AI-powered partner for smarter farming. Get instant advice, weather updates, and disease diagnosis to maximize your yield.",
     "fetchingLocation": "Fetching location...",
     "refreshLocation": "Refresh Location",
