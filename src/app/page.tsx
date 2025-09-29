@@ -60,15 +60,25 @@ export default function Home() {
             title: t('home.locationDenied'),
             description: "Showing weather for the default location."
           });
+          // On denial, explicitly fetch for default location if not already done
+          if (weather.currentWeather.location === 'Loading...' || weather.currentWeather.location === 'Error Loading Weather') {
+             fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
+          }
         }
       );
+    } else {
+       toast({
+          variant: 'default',
+          title: t('home.geolocationNotSupported'),
+          description: "Showing weather for the default location."
+        });
+        fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
     }
-  }, [fetchWeatherForLocation, t, toast]);
+  }, [fetchWeatherForLocation, t, toast, weather.currentWeather.location]);
 
   useEffect(() => {
-    // Load default weather on initial load
-    fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
-  }, [fetchWeatherForLocation]);
+    requestLocationAndUpdateWeather();
+  }, [requestLocationAndUpdateWeather]);
 
   useEffect(() => {
     if (!loading && weather.currentWeather.location !== 'Loading...') {
@@ -174,7 +184,7 @@ export default function Home() {
             )}
           </CardContent>
         </Card>
-        {error && !loading && <p className="text-center text-yellow-600 dark:text-yellow-400 mt-2">{error}</p>}
+        {error && !loading && <p className="text-center text-red-600 dark:text-red-400 mt-2">{error}</p>}
       </section>
 
       <section className="space-y-6">
