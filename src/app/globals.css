@@ -416,4 +416,22 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  @keyframes move-bg {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  body.dark.theme-cosmic {
+    background-color: hsl(var(--background));
+    background-image: 
+      radial-gradient(ellipse at top, transparent 0%, hsl(var(--background))),
+      radial-gradient(ellipse at bottom, hsl(260 30% 18%), hsl(var(--background))),
+      repeating-radial-gradient(circle at 20% 20%, hsl(280 80% 65% / 0.1) 0, hsl(280 80% 65% / 0.1) 1px, transparent 1px, transparent 20px),
+      repeating-radial-gradient(circle at 80% 80%, hsl(280 80% 65% / 0.1) 0, hsl(280 80% 65% / 0.1) 1px, transparent 1px, transparent 20px);
+    background-size: 200% 200%;
+    animation: move-bg 20s ease-in-out infinite;
+  }
 }
+
