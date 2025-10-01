@@ -14,6 +14,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import { sleep } from '@/lib/utils';
 import {z} from 'genkit';
 
 const AIQuerySupportInputSchema = z.object({
@@ -53,7 +54,24 @@ const aiQuerySupportFlow = ai.defineFlow(
     outputSchema: AIQuerySupportOutputSchema,
   },
   async input => {
-    const {output} = await aiQuerySupportPrompt(input);
-    return output!;
+    const maxRetries = 3;
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        const { output } = await aiQuerySupportPrompt(input);
+        return output!;
+      } catch (err: any) {
+        if (err.message.includes('503') && attempt < maxRetries - 1) {
+          console.log(`Attempt ${attempt + 1} failed with 503 error. Retrying...`);
+          await sleep(1000 * (attempt + 1)); // Wait 1, 2 seconds before retrying
+          attempt++;
+        } else {
+          // For non-503 errors or if max retries are reached, throw the error
+          throw err;
+        }
+      }
+    }
+    // This should not be reached, but typescript needs a return path
+    throw new Error('AI query failed after multiple retries.');
   }
 );
