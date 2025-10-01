@@ -123,7 +123,8 @@ export default function Home() {
             });
         }
         
-        if (condition.toLowerCase().includes('rain')) {
+        const lowerCaseCondition = condition.toLowerCase();
+        if (lowerCaseCondition.includes('heavy rain') || lowerCaseCondition.includes('thunderstorm')) {
             toast({
                 variant: 'destructive',
                 title: 'Heavy Rain Warning',
