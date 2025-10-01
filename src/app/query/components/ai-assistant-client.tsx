@@ -119,6 +119,7 @@ export function AiAssistantClient() {
 
     if (isRecording) {
       recognitionRef.current?.stop();
+      setIsRecording(false);
     } else {
       const recognition = new SpeechRecognition();
       recognition.lang = language;
@@ -138,13 +139,11 @@ export function AiAssistantClient() {
           .map(result => result.transcript)
           .join('');
         setInput(transcript);
-        if (event.results[0].isFinal) {
-          handleSubmit(transcript);
-        }
       };
 
       recognition.onend = () => {
         setIsRecording(false);
+        recognitionRef.current = null;
       };
 
       recognition.onerror = (event) => {
