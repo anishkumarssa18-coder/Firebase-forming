@@ -56,7 +56,7 @@ export function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
-  const { setTheme, setMode, themes } = useTheme();
+  const { setTheme, mode, themes, resolvedMode } = useTheme();
 
   const NavLink = ({
     href,
@@ -120,9 +120,9 @@ export function Header() {
                   </DropdownMenuSubTrigger>
                    <DropdownMenuPortal>
                       <DropdownMenuSubContent>
-                        <DropdownMenuItem onClick={() => setMode('light')}>Light</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setMode('dark')}>Dark</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setMode('system')}>System</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuPortal>
                 </DropdownMenuSub>
@@ -134,8 +134,8 @@ export function Header() {
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
                       {themes.map((theme) => (
-                        <DropdownMenuItem key={theme.name} onClick={() => setTheme(theme.name)}>
-                          <span className="capitalize">{theme.name}</span>
+                        <DropdownMenuItem key={theme} onClick={() => setTheme(theme)}>
+                          <span className="capitalize">{theme}</span>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuSubContent>

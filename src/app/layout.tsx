@@ -11,6 +11,28 @@ export const metadata: Metadata = {
   description: 'AI-powered query support & advisory system for farmers.',
 };
 
+const THEMES = [
+  'light',
+  'dark',
+  'forest',
+  'dark-forest',
+  'sky',
+  'dark-sky',
+  'rose',
+  'dark-rose',
+  'ocean',
+  'dark-ocean',
+  'sunset',
+  'dark-sunset',
+  'lavender',
+  'dark-lavender',
+  'sunflower',
+  'dark-sunflower',
+  'cosmic',
+  'dark-cosmic',
+];
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,9 +51,10 @@ export default function RootLayout({
       <body className={cn('font-body antialiased min-h-screen flex flex-col')}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="default"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
+          themes={THEMES}
         >
           <LanguageProvider>
             <Header />
