@@ -6,13 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/auth-context';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
-import { User as UserIcon, Mail, LogOut } from 'lucide-react';
+import { User as UserIcon, Mail, LogOut, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/context/language-context';
 
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -20,6 +20,14 @@ export default function ProfilePage() {
     await signOut(auth);
     router.push('/');
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!user) {
     // This can happen briefly while redirecting.
