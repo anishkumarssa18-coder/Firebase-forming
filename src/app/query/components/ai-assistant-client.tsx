@@ -1,21 +1,27 @@
 'use client';
 
 import { aiQuerySupport } from '@/ai/flows/ai-query-support';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { textToSpeech } from '@/ai/flows/text-to-speech';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Languages, Send, User } from 'lucide-react';
-import { useState, useTransition, useRef, useEffect } from 'react';
+import { Bot, Mic, MicOff, Send, User, Volume2, Loader2 } from 'lucide-react';
+import { useState, useTransition, useRef, useEffect, useCallback } from 'react';
 import { useLanguage, useTranslation, languages } from '@/context/language-context';
-
 
 type Message = {
   role: 'user' | 'assistant';
   content: string;
+  audioUrl?: string;
 };
+
+// Check for SpeechRecognition API
+const SpeechRecognition =
+  (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition));
+
 
 export function AiAssistantClient() {
   const [conversation, setConversation] = useState<Message[]>([]);
@@ -23,8 +29,12 @@ export function AiAssistantClient() {
   const { language } = useLanguage();
   const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
+  const [isRecording, setIsRecording] = useState(false);
+  const [isUttering, setIsUttering] = useState(false);
+  const [isTtsPending, setIsTtsPending] = useState(false);
   const { toast } = useToast();
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -32,21 +42,55 @@ export function AiAssistantClient() {
     }
   }, [conversation]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isPending) return;
+  const handleTextToSpeech = useCallback(async (text: string, messageIndex: number) => {
+    setIsTtsPending(true);
+    try {
+      const result = await textToSpeech({ text });
+      if (result && result.audioDataUri) {
+        setConversation(prev => {
+            const newConversation = [...prev];
+            if(newConversation[messageIndex]) {
+                newConversation[messageIndex].audioUrl = result.audioDataUri;
+            }
+            return newConversation;
+        });
+        playAudio(result.audioDataUri);
+      }
+    } catch (error) {
+      console.error('TTS Error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Speech Error',
+        description: 'Failed to generate audio for the response.',
+      });
+    } finally {
+        setIsTtsPending(false);
+    }
+  }, [toast]);
 
-    const userMessage: Message = { role: 'user', content: input };
+  const playAudio = (audioUrl: string) => {
+    const audio = new Audio(audioUrl);
+    setIsUttering(true);
+    audio.onended = () => setIsUttering(false);
+    audio.play();
+  };
+
+  const handleSubmit = useCallback(async (text: string) => {
+    if (!text.trim() || isPending) return;
+
+    const userMessage: Message = { role: 'user', content: text };
     setConversation((prev) => [...prev, userMessage]);
     setInput('');
 
     startTransition(async () => {
       try {
         const languageLabel = languages.find(l => l.value === language)?.label || 'English';
-        const result = await aiQuerySupport({ query: input, language: languageLabel });
+        const result = await aiQuerySupport({ query: text, language: languageLabel });
         if (result && result.advice) {
           const assistantMessage: Message = { role: 'assistant', content: result.advice };
+          const newConversationLength = conversation.length + 2; // user's + assistant's
           setConversation((prev) => [...prev, assistantMessage]);
+          handleTextToSpeech(result.advice, newConversationLength - 1);
         } else {
           throw new Error('Invalid response from AI');
         }
@@ -60,7 +104,63 @@ export function AiAssistantClient() {
         setConversation((prev) => prev.slice(0, -1)); // Remove the user's message on error
       }
     });
+  }, [isPending, language, t, toast, conversation.length, handleTextToSpeech]);
+
+
+  const toggleRecording = () => {
+    if (!SpeechRecognition) {
+      toast({
+        variant: 'destructive',
+        title: 'Not Supported',
+        description: 'Speech recognition is not supported in your browser.',
+      });
+      return;
+    }
+
+    if (isRecording) {
+      recognitionRef.current?.stop();
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.lang = language;
+      recognition.interimResults = true;
+      recognition.continuous = false;
+
+      recognitionRef.current = recognition;
+
+      recognition.onstart = () => {
+        setIsRecording(true);
+        setInput('Listening...');
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join('');
+        setInput(transcript);
+        if (event.results[0].isFinal) {
+          handleSubmit(transcript);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        toast({
+          variant: 'destructive',
+          title: 'Speech Error',
+          description: `An error occurred: ${event.error}`,
+        });
+        setIsRecording(false);
+      };
+
+      recognition.start();
+    }
   };
+
 
   return (
     <Card className="shadow-lg">
@@ -86,10 +186,24 @@ export function AiAssistantClient() {
                   </Avatar>
                 )}
                 <div className={cn(
-                  'max-w-xs md:max-w-md p-3 rounded-lg',
+                  'max-w-xs md:max-w-md p-3 rounded-lg flex items-center gap-2',
                   msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
                 )}>
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  {msg.role === 'assistant' && msg.audioUrl && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => playAudio(msg.audioUrl!)}
+                      disabled={isUttering || isTtsPending}
+                    >
+                      <Volume2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                   {msg.role === 'assistant' && !msg.audioUrl && isTtsPending && index === conversation.length -1 && (
+                     <Loader2 className="h-4 w-4 animate-spin"/>
+                  )}
                 </div>
                 {msg.role === 'user' && (
                   <Avatar>
@@ -116,12 +230,16 @@ export function AiAssistantClient() {
         </div>
       </CardContent>
       <CardFooter>
-        <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(input); }} className="flex w-full items-center gap-2">
+           <Button type="button" variant="outline" onClick={toggleRecording} disabled={!SpeechRecognition || isPending}>
+            {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+            <span className="sr-only">{isRecording ? "Stop recording" : "Start recording"}</span>
+          </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={t('aiAssistant.inputPlaceholder').replace('{language}', languages.find(l => l.value === language)?.label || 'English')}
-            disabled={isPending}
+            disabled={isPending || isRecording}
             className="flex-1"
           />
           <Button type="submit" disabled={isPending || !input.trim()}>
