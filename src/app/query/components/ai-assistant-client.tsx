@@ -85,7 +85,7 @@ export function AiAssistantClient() {
 
 
   const handleTextToSpeech = useCallback(async (text: string, messageIndex: number) => {
-    if (isTtsPending !== null) return;
+    if (isTtsPending !== null) return; // Do not start a new request if one is already pending
     
     stopCurrentAudio();
     setIsTtsPending(messageIndex);
@@ -111,8 +111,6 @@ export function AiAssistantClient() {
             return newConversation;
         });
         playAudio(result.audioDataUri);
-      } else {
-        throw new Error('Failed to generate audio.');
       }
     } catch (error: any) {
       console.error('TTS Error:', error);
