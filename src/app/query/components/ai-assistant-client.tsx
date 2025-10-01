@@ -26,6 +26,30 @@ const voices: Record<VoiceOption, string> = {
   male: 'Algenib',
 };
 
+// Define SpeechRecognition interface for TypeScript
+interface SpeechRecognition extends EventTarget {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onstart: (() => void) | null;
+  onresult: ((event: any) => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: any) => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+interface SpeechRecognitionStatic {
+  new (): SpeechRecognition;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: SpeechRecognitionStatic;
+    webkitSpeechRecognition: SpeechRecognitionStatic;
+  }
+}
+
 export function AiAssistantClient() {
   const [conversation, setConversation] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -45,8 +69,11 @@ export function AiAssistantClient() {
 
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    setIsSpeechRecognitionSupported(!!SpeechRecognition);
+    // This check now runs only on the client, avoiding the server-side 'window is not defined' error.
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      setIsSpeechRecognitionSupported(!!SpeechRecognition);
+    }
   }, []);
   
   useEffect(() => {
@@ -173,7 +200,6 @@ export function AiAssistantClient() {
 
 
   const toggleRecording = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!isSpeechRecognitionSupported) {
       toast({
         variant: 'destructive',
@@ -182,6 +208,8 @@ export function AiAssistantClient() {
       });
       return;
     }
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (isRecording) {
       recognitionRef.current?.stop();
