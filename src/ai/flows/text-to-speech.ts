@@ -98,8 +98,10 @@ const textToSpeechFlow = ai.defineFlow(
       };
     } catch (err: any) {
       console.error("Text-to-speech flow failed", err);
-      if (err.stack?.includes('[429') || err.message?.includes('429')) {
-          return { error: 'Text-to-speech quota exceeded. Please try again later.' };
+      // Check for quota error more reliably
+      const errorMessage = (err.stack || err.message || '').toString();
+      if (errorMessage.includes('429') || errorMessage.includes('Quota')) {
+        return { error: 'Text-to-speech quota exceeded. Please try again later.' };
       }
       return { error: 'Failed to generate audio.' };
     }

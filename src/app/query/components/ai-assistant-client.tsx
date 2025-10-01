@@ -85,7 +85,8 @@ export function AiAssistantClient() {
 
 
   const handleTextToSpeech = useCallback(async (text: string, messageIndex: number) => {
-    if (isTtsPending !== null) return;
+    // Do not proceed if TTS is already pending for another message, or if audio has already failed for this one
+    if (isTtsPending !== null || conversation[messageIndex]?.audioUrl === null) return;
     
     stopCurrentAudio();
     setIsTtsPending(messageIndex);
@@ -129,7 +130,7 @@ export function AiAssistantClient() {
     } finally {
         setIsTtsPending(null);
     }
-  }, [toast, selectedVoice, playAudio, stopCurrentAudio, isTtsPending, autoPlayEnabled, currentlyPlayingIndex]);
+  }, [toast, selectedVoice, playAudio, stopCurrentAudio, isTtsPending, autoPlayEnabled, currentlyPlayingIndex, conversation]);
 
   const handleSubmit = useCallback(async (text: string) => {
     if (!text.trim() || isPending) return;
@@ -296,7 +297,7 @@ export function AiAssistantClient() {
                             }
                           }}
                           disabled={(isTtsPending !== null && isTtsPending !== index) || msg.audioUrl === null}
-                          aria-label={currentlyPlayingIndex === index ? "Stop" : "Play"}
+                          aria-label={currentlyPlayingIndex === index ? "Stop" : msg.audioUrl === null ? "Audio failed" : "Play"}
                         >
                           {msg.audioUrl === null ? (
                             <VolumeX className="h-4 w-4 text-destructive" />
