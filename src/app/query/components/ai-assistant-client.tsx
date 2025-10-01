@@ -8,14 +8,14 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Mic, MicOff, Send, User, Volume2, Loader2 } from 'lucide-react';
+import { Bot, Mic, MicOff, Send, User, Volume2, Loader2, VolumeX } from 'lucide-react';
 import { useState, useTransition, useRef, useEffect, useCallback } from 'react';
 import { useLanguage, useTranslation, languages } from '@/context/language-context';
 
 type Message = {
   role: 'user' | 'assistant';
   content: string;
-  audioUrl?: string;
+  audioUrl?: string | null; // null means TTS failed
 };
 
 type VoiceOption = 'male' | 'female';
@@ -63,13 +63,23 @@ export function AiAssistantClient() {
             return newConversation;
         });
         playAudio(result.audioDataUri);
+      } else {
+        throw new Error(result.error || 'Failed to generate audio.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('TTS Error:', error);
       toast({
         variant: 'destructive',
         title: 'Speech Error',
-        description: 'Failed to generate audio for the response.',
+        description: error.message || 'Could not generate audio for the response.',
+      });
+      // Mark as failed so we don't retry
+      setConversation(prev => {
+          const newConversation = [...prev];
+          if(newConversation[messageIndex]) {
+              newConversation[messageIndex].audioUrl = null;
+          }
+          return newConversation;
       });
     } finally {
         setIsTtsPending(null);
@@ -217,9 +227,9 @@ export function AiAssistantClient() {
                           size="icon"
                           className="h-6 w-6"
                           onClick={() => msg.audioUrl ? playAudio(msg.audioUrl) : handleTextToSpeech(msg.content, index)}
-                          disabled={isUttering || isTtsPending !== null}
+                          disabled={isUttering || isTtsPending !== null || msg.audioUrl === null}
                         >
-                          <Volume2 className="h-4 w-4" />
+                          {msg.audioUrl === null ? <VolumeX className="h-4 w-4 text-destructive" /> : <Volume2 className="h-4 w-4" />}
                         </Button>
                       )}
                     </>
