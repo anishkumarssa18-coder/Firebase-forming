@@ -117,7 +117,7 @@ export function AiAssistantClient() {
 
   const toggleRecording = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (!isSpeechRecognitionSupported) {
       toast({
         variant: 'destructive',
         title: 'Not Supported',
@@ -132,7 +132,7 @@ export function AiAssistantClient() {
     } else {
       const recognition = new SpeechRecognition();
       recognition.lang = language;
-      recognition.interimResults = true;
+      recognition.interimResults = false;
       recognition.continuous = false;
 
       recognitionRef.current = recognition;
@@ -143,20 +143,14 @@ export function AiAssistantClient() {
       };
 
       recognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map(result => result[0])
-          .map(result => result.transcript)
-          .join('');
+        const transcript = event.results[0][0].transcript;
         setInput(transcript);
       };
 
       recognition.onend = () => {
         setIsRecording(false);
-        if (input.trim() === 'Listening...' || input.trim() === '') {
+        if (input.trim() === 'Listening...') {
             setInput('');
-        } else {
-           // Wait for final result then submit
-           setTimeout(() => handleSubmit(input), 100);
         }
       };
       
