@@ -39,6 +39,8 @@ Include 3-4 bullet points covering a mix of the following topics:
 - An alert for potential pest or disease outbreaks based on common seasonal patterns.
 
 The tone should be informative, direct, and easy to understand. Start with a positive and encouraging opening.
+
+IMPORTANT: Format the bullet points using plain text, like '*' or '-', not with HTML tags like <ul> or <li>.
 `,
 });
 
