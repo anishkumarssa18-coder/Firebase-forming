@@ -91,7 +91,7 @@ export function AiAssistantClient() {
 
 
   const handleTextToSpeech = useCallback(async (text: string, messageIndex: number) => {
-    if (isTtsPending !== null) return; // Do not start a new request if one is already pending
+    if (isTtsPending !== null) return;
     
     stopCurrentAudio();
     setIsTtsPending(messageIndex);
@@ -116,7 +116,9 @@ export function AiAssistantClient() {
             if(newConversation[messageIndex]) newConversation[messageIndex].audioUrl = result.audioDataUri;
             return newConversation;
         });
-        playAudio(result.audioDataUri, messageIndex);
+        if (autoPlayEnabled || currentlyPlayingIndex === messageIndex) {
+            playAudio(result.audioDataUri, messageIndex);
+        }
       }
     } catch (error: any) {
       console.error('TTS Error:', error);
@@ -133,7 +135,7 @@ export function AiAssistantClient() {
     } finally {
         setIsTtsPending(null);
     }
-  }, [toast, selectedVoice, playAudio, stopCurrentAudio, isTtsPending]);
+  }, [toast, selectedVoice, playAudio, stopCurrentAudio, isTtsPending, autoPlayEnabled, currentlyPlayingIndex]);
 
   const handleSubmit = useCallback(async (text: string) => {
     if (!text.trim() || isPending) return;
@@ -296,11 +298,11 @@ export function AiAssistantClient() {
                                 stopCurrentAudio();
                             } else if (msg.audioUrl) {
                                 playAudio(msg.audioUrl, index);
-                            } else {
+                            } else if (msg.audioUrl === undefined) {
                                 handleTextToSpeech(msg.content, index);
                             }
                           }}
-                          disabled={isTtsPending !== null && isTtsPending !== index}
+                          disabled={isTtsPending !== null && isTtsPending !== index || msg.audioUrl === null}
                         >
                           {msg.audioUrl === null ? (
                             <VolumeX className="h-4 w-4 text-destructive" />
@@ -360,5 +362,3 @@ export function AiAssistantClient() {
     </Card>
   );
 }
-
-    
