@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from '@/context/language-context';
 import { useToast } from '@/hooks/use-toast';
-import { WeatherAlertSettings } from './components/weather-alert-settings';
 
 const defaultWeather: {
   currentWeather: CurrentWeather,
@@ -49,19 +48,6 @@ export default function Home() {
         console.error("Failed to load weather thresholds from localStorage", error);
     }
   }, []);
-
-  const handleWindChange = (value: number) => {
-    setWindThreshold(value);
-    localStorage.setItem('windThreshold', JSON.stringify(value));
-  };
-  const handleHeatChange = (value: number) => {
-    setHeatThreshold(value);
-    localStorage.setItem('heatThreshold', JSON.stringify(value));
-  };
-  const handleColdChange = (value: number) => {
-    setColdThreshold(value);
-    localStorage.setItem('coldThreshold', JSON.stringify(value));
-  };
 
   const fetchWeatherForLocation = useCallback(async (lat: number, lon: number, fallbackCityName?: string) => {
     setError(null);
@@ -238,17 +224,6 @@ export default function Home() {
         </div>
       </section>
       
-      <section>
-        <WeatherAlertSettings
-          windThreshold={windThreshold}
-          heatThreshold={heatThreshold}
-          coldThreshold={coldThreshold}
-          onWindChange={handleWindChange}
-          onHeatChange={handleHeatChange}
-          onColdChange={handleColdChange}
-        />
-      </section>
-
       <section className="text-center py-8">
         <Card className="bg-primary/10 border-primary/20 max-w-4xl mx-auto p-8">
           <h2 className="text-2xl md:text-3xl font-bold font-headline text-primary">

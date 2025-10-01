@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { AlertOctagon, AlertTriangle, Info, Calendar, Clock } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@/context/language-context';
+import { WeatherAlertSettings } from '@/app/components/weather-alert-settings';
 
 const severityConfig = {
   info: {
@@ -66,6 +67,37 @@ const AlertCard: React.FC<{ alert: AlertType }> = ({ alert }) => {
 
 export default function AlertsPage() {
   const { t } = useTranslation();
+  const [windThreshold, setWindThreshold] = useState(30);
+  const [heatThreshold, setHeatThreshold] = useState(35);
+  const [coldThreshold, setColdThreshold] = useState(5);
+
+  useEffect(() => {
+    try {
+        const savedWind = localStorage.getItem('windThreshold');
+        const savedHeat = localStorage.getItem('heatThreshold');
+        const savedCold = localStorage.getItem('coldThreshold');
+
+        if (savedWind) setWindThreshold(JSON.parse(savedWind));
+        if (savedHeat) setHeatThreshold(JSON.parse(savedHeat));
+        if (savedCold) setColdThreshold(JSON.parse(savedCold));
+    } catch (error) {
+        console.error("Failed to load weather thresholds from localStorage", error);
+    }
+  }, []);
+
+  const handleWindChange = (value: number) => {
+    setWindThreshold(value);
+    localStorage.setItem('windThreshold', JSON.stringify(value));
+  };
+  const handleHeatChange = (value: number) => {
+    setHeatThreshold(value);
+    localStorage.setItem('heatThreshold', JSON.stringify(value));
+  };
+  const handleColdChange = (value: number) => {
+    setColdThreshold(value);
+    localStorage.setItem('coldThreshold', JSON.stringify(value));
+  };
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -80,6 +112,17 @@ export default function AlertsPage() {
           <AlertCard key={alert.id} alert={alert} />
         ))}
       </div>
+      
+      <section>
+        <WeatherAlertSettings
+          windThreshold={windThreshold}
+          heatThreshold={heatThreshold}
+          coldThreshold={coldThreshold}
+          onWindChange={handleWindChange}
+          onHeatChange={handleHeatChange}
+          onColdChange={handleColdChange}
+        />
+      </section>
     </div>
   );
 }
