@@ -74,8 +74,8 @@ export default function Home() {
             title: t('home.locationDenied'),
             description: "Showing weather for the default location."
           });
-          // On denial, explicitly fetch for default location: Nagapattinam
-          fetchWeatherForLocation(10.7667, 79.8333);
+          // On denial, explicitly fetch for default location: Vedasandur
+          fetchWeatherForLocation(10.53, 77.95);
         }
       );
     } else {
@@ -84,8 +84,8 @@ export default function Home() {
           title: t('home.geolocationNotSupported'),
           description: "Showing weather for the default location."
         });
-        // Geolocation not supported, fetch for default location: Nagapattinam
-        fetchWeatherForLocation(10.7667, 79.8333);
+        // Geolocation not supported, fetch for default location: Vedasandur
+        fetchWeatherForLocation(10.53, 77.95);
     }
   }, [fetchWeatherForLocation, t, toast]);
 
