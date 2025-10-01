@@ -105,7 +105,7 @@ export default function Home() {
                 variant: 'destructive',
                 title: 'Cold Snap Alert',
                 description: `Low temperatures of ${temperature}°C detected. Protect sensitive crops from potential frost damage.`,
-                duration: 8000,
+                duration: 8_000,
             });
         }
         
