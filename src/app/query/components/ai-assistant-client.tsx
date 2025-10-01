@@ -18,6 +18,12 @@ type Message = {
   audioUrl?: string;
 };
 
+type VoiceOption = 'male' | 'female';
+const voices: Record<VoiceOption, string> = {
+  female: 'Achernar',
+  male: 'Algenib',
+};
+
 export function AiAssistantClient() {
   const [conversation, setConversation] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -28,12 +34,12 @@ export function AiAssistantClient() {
   const [isUttering, setIsUttering] = useState(false);
   const [isTtsPending, setIsTtsPending] = useState(false);
   const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('female');
   const { toast } = useToast();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
-    // Check for SpeechRecognition API support on the client after mount
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     setIsSpeechRecognitionSupported(!!SpeechRecognition);
   }, []);
@@ -47,7 +53,7 @@ export function AiAssistantClient() {
   const handleTextToSpeech = useCallback(async (text: string, messageIndex: number) => {
     setIsTtsPending(true);
     try {
-      const result = await textToSpeech({ text });
+      const result = await textToSpeech({ text, voice: voices[selectedVoice] });
       if (result && result.audioDataUri) {
         setConversation(prev => {
             const newConversation = [...prev];
@@ -68,7 +74,7 @@ export function AiAssistantClient() {
     } finally {
         setIsTtsPending(false);
     }
-  }, [toast]);
+  }, [toast, selectedVoice]);
 
   const playAudio = (audioUrl: string) => {
     const audio = new Audio(audioUrl);
@@ -146,8 +152,10 @@ export function AiAssistantClient() {
 
       recognition.onend = () => {
         setIsRecording(false);
-        if (input === 'Listening...') {
+        if (input.trim() === 'Listening...' || input.trim() === '') {
             setInput('');
+        } else {
+           handleSubmit(input);
         }
       };
       
@@ -165,6 +173,10 @@ export function AiAssistantClient() {
       recognition.start();
     }
   };
+  
+  const toggleVoice = () => {
+    setSelectedVoice(prev => prev === 'female' ? 'male' : 'female');
+  }
 
 
   return (
@@ -172,6 +184,10 @@ export function AiAssistantClient() {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>{t('aiAssistant.title')}</span>
+           <Button variant="outline" size="icon" onClick={toggleVoice}>
+              {selectedVoice === 'female' ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
+              <span className="sr-only">Switch Voice</span>
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent>
