@@ -69,9 +69,8 @@ const textToSpeechFlow = ai.defineFlow(
   },
   async ({ text, voice }) => {
     try {
-      const ttsModel = 'googleai/tts-1';
       const { media } = await ai.generate({
-        model: ttsModel,
+        model: 'googleai/gemini-2.5-flash-preview-tts',
         config: {
           responseModalities: ['AUDIO'],
           speechConfig: {
@@ -99,7 +98,6 @@ const textToSpeechFlow = ai.defineFlow(
       };
     } catch (err: any) {
       console.error("Text-to-speech flow failed", err);
-      // Check for a 429 quota error in a more robust way
       if (err.stack?.includes('[429') || err.message?.includes('429')) {
           return { error: 'Text-to-speech quota exceeded. Please try again later.' };
       }
