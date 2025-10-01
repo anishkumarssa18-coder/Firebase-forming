@@ -33,14 +33,12 @@ const openWeatherMapApiKey = process.env.OPENWEATHERMAP_API_KEY;
 export async function getRealTimeWeather(
   lat: number,
   lon: number,
-  fallbackCityName?: string
 ): Promise<{
   currentWeather: CurrentWeather;
   forecast: ForecastDay[];
 }> {
   if (!openWeatherMapApiKey) {
     console.error('OpenWeatherMap API key is missing.');
-    // Return default data to prevent app crash
     return {
       currentWeather: {
         location: 'API Key Missing',
@@ -55,32 +53,28 @@ export async function getRealTimeWeather(
   }
 
   try {
-    const [weatherResponse, forecastResponse] = await Promise.all([
-      fetch(
+    const [weatherResponse, onecallResponse] = await Promise.all([
+       fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${openWeatherMapApiKey}&units=metric`
       ),
       fetch(
-        `https://api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=7&appid=${openWeatherMapApiKey}&units=metric`
+        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&appid=${openWeatherMapApiKey}&units=metric`
       ),
     ]);
 
     if (!weatherResponse.ok) {
-      throw new Error(
-        `Weather data fetch failed: ${weatherResponse.statusText}`
-      );
+      throw new Error(`Weather data fetch failed: ${weatherResponse.statusText}`);
     }
-    if (!forecastResponse.ok) {
-      throw new Error(
-        `Forecast data fetch failed: ${forecastResponse.statusText}`
-      );
+     if (!onecallResponse.ok) {
+      throw new Error(`OneCall forecast data fetch failed: ${onecallResponse.statusText}`);
     }
 
     const weatherData = await weatherResponse.json();
-    const forecastData = await forecastResponse.json();
+    const onecallData = await onecallResponse.json();
     
     const locationName = (weatherData.name && weatherData.sys.country 
         ? `${weatherData.name}, ${weatherData.sys.country}` 
-        : fallbackCityName) || 'Unknown Location';
+        : 'Unknown Location');
 
 
     const currentWeather: CurrentWeather = {
@@ -92,7 +86,7 @@ export async function getRealTimeWeather(
       windSpeed: weatherData.wind.speed,
     };
 
-    const forecast: ForecastDay[] = forecastData.list.map((day: any) => {
+    const forecast: ForecastDay[] = onecallData.daily.slice(0, 7).map((day: any) => {
       const date = new Date(day.dt * 1000);
       const condition =
         (weatherConditionMap as any)[day.weather[0].description] ||
@@ -111,7 +105,7 @@ export async function getRealTimeWeather(
     // Provide a structured fallback in case of any error
     return {
       currentWeather: {
-        location: fallbackCityName || 'Unknown Location',
+        location: 'Unknown Location',
         temperature: 0,
         condition: 'Error',
         wind: 'N/A',

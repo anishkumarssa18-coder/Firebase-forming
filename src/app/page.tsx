@@ -49,11 +49,11 @@ export default function Home() {
     }
   }, []);
 
-  const fetchWeatherForLocation = useCallback(async (lat: number, lon: number, fallbackCityName?: string) => {
+  const fetchWeatherForLocation = useCallback(async (lat: number, lon: number) => {
     setError(null);
     setLoading(true);
     try {
-      const weatherData = await getRealTimeWeather(lat, lon, fallbackCityName);
+      const weatherData = await getRealTimeWeather(lat, lon);
       setWeather(weatherData);
     } catch (err) {
       setError(t('home.weatherError'));
@@ -75,7 +75,7 @@ export default function Home() {
             description: "Showing weather for the default location."
           });
           // On denial, explicitly fetch for default location
-          fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
+          fetchWeatherForLocation(28.6139, 77.2090);
         }
       );
     } else {
@@ -84,7 +84,7 @@ export default function Home() {
           title: t('home.geolocationNotSupported'),
           description: "Showing weather for the default location."
         });
-        fetchWeatherForLocation(28.6139, 77.2090, 'Delhi, IN');
+        fetchWeatherForLocation(28.6139, 77.2090);
     }
   }, [fetchWeatherForLocation, t, toast]);
 
