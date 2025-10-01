@@ -29,7 +29,7 @@ export default function RootLayout({
       <body className={cn('font-body antialiased min-h-screen flex flex-col')}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="default"
           enableSystem
           disableTransitionOnChange
         >

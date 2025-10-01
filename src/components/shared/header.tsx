@@ -16,7 +16,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/hooks/use-theme';
 
 
 import { Button } from '@/components/ui/button';
@@ -56,7 +56,7 @@ export function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
-  const { setTheme } = useTheme();
+  const { setTheme, setMode, themes } = useTheme();
 
   const NavLink = ({
     href,
@@ -120,9 +120,9 @@ export function Header() {
                   </DropdownMenuSubTrigger>
                    <DropdownMenuPortal>
                       <DropdownMenuSubContent>
-                        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setMode('light')}>Light</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setMode('dark')}>Dark</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setMode('system')}>System</DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuPortal>
                 </DropdownMenuSub>
@@ -133,15 +133,11 @@ export function Header() {
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
-                      <DropdownMenuItem onClick={() => setTheme('theme-default')}>Default</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme('theme-forest')}>Forest</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme('theme-sky')}>Sky</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme('theme-rose')}>Rose</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme('theme-ocean')}>Ocean</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme('theme-sunset')}>Sunset</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme('theme-lavender')}>Lavender</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme('theme-sunflower')}>Sunflower</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme('theme-cosmic')}>Cosmic</DropdownMenuItem>
+                      {themes.map((theme) => (
+                        <DropdownMenuItem key={theme.name} onClick={() => setTheme(theme.name)}>
+                          <span className="capitalize">{theme.name}</span>
+                        </DropdownMenuItem>
+                      ))}
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
