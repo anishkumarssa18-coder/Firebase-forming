@@ -86,7 +86,7 @@ export function AiAssistantClient() {
 
   const handleTextToSpeech = useCallback(async (text: string, messageIndex: number) => {
     // Do not proceed if TTS is already pending for another message, or if audio has already failed for this one
-    if (isTtsPending !== null || conversation[messageIndex]?.audioUrl === null) return;
+    if (isTtsPending !== null || (conversation[messageIndex] && conversation[messageIndex].audioUrl === null)) return;
     
     stopCurrentAudio();
     setIsTtsPending(messageIndex);
