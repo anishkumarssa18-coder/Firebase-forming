@@ -112,8 +112,8 @@ export function AiAssistantClient() {
 
 
   const handleTextToSpeech = useCallback(async (text: string, messageIndex: number) => {
-    // Do not proceed if TTS is already pending for another message, or if audio has already failed for this one
-    if (isTtsPending !== null || (conversation[messageIndex] && conversation[messageIndex].audioUrl === null)) return;
+    const message = conversation[messageIndex];
+    if (isTtsPending !== null || message?.audioUrl !== undefined) return;
     
     stopCurrentAudio();
     setIsTtsPending(messageIndex);
@@ -121,27 +121,26 @@ export function AiAssistantClient() {
     try {
       const result = await textToSpeech({ text, voice: voices[selectedVoice] });
       
+      let newAudioUrl: string | null = null;
       if (result.error) {
         toast({
           variant: 'destructive',
           title: 'Speech Error',
           description: result.error,
         });
-        setConversation(prev => {
-            const newConversation = [...prev];
-            if(newConversation[messageIndex]) newConversation[messageIndex].audioUrl = null;
-            return newConversation;
-        });
       } else if (result.audioDataUri) {
-        setConversation(prev => {
-            const newConversation = [...prev];
-            if(newConversation[messageIndex]) newConversation[messageIndex].audioUrl = result.audioDataUri;
-            return newConversation;
-        });
+        newAudioUrl = result.audioDataUri;
         if (autoPlayEnabled || currentlyPlayingIndex === messageIndex) {
             playAudio(result.audioDataUri, messageIndex);
         }
       }
+      
+      setConversation(prev => {
+          const newConversation = [...prev];
+          if(newConversation[messageIndex]) newConversation[messageIndex].audioUrl = newAudioUrl;
+          return newConversation;
+      });
+
     } catch (error: any) {
       console.error('TTS Error:', error);
       toast({
@@ -149,7 +148,7 @@ export function AiAssistantClient() {
         title: 'Speech Error',
         description: error.message || 'Could not generate audio for the response.',
       });
-      setConversation(prev => {
+       setConversation(prev => {
           const newConversation = [...prev];
           if(newConversation[messageIndex]) newConversation[messageIndex].audioUrl = null;
           return newConversation;
@@ -192,9 +191,10 @@ export function AiAssistantClient() {
 
   // Effect for auto-playing new assistant messages
   useEffect(() => {
-    const lastMessage = conversation[conversation.length - 1];
+    const lastMessageIndex = conversation.length - 1;
+    const lastMessage = conversation[lastMessageIndex];
     if (autoPlayEnabled && lastMessage?.role === 'assistant' && lastMessage.audioUrl === undefined) {
-      handleTextToSpeech(lastMessage.content, conversation.length - 1);
+      handleTextToSpeech(lastMessage.content, lastMessageIndex);
     }
   }, [conversation, autoPlayEnabled, handleTextToSpeech]);
 
