@@ -53,7 +53,7 @@ export default function AdvisoryHubPage() {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h1 className="text-3xl md:text-4xl font-bold font-headline">{t('advisory.title')}</h1>
+        <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">{t('advisory.title')}</h1>
         <p className="mt-2 text-lg text-muted-foreground">
           {t('advisory.description')}
         </p>
