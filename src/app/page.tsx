@@ -197,7 +197,7 @@ export default function Home() {
                           <span className="text-4xl font-bold">{currentWeather.temperature}°C</span>
                       </div>
                       <div className='flex flex-col items-center'>
-                          <WeatherIcon condition={currentWeather.description} className="w-8 h-8 text-yellow-500" />
+                          <WeatherIcon condition={currentWeather.condition} className="w-8 h-8 text-yellow-500" />
                           <p className="text-lg text-muted-foreground capitalize">{currentWeather.description}</p>
                       </div>
                     </div>
