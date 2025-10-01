@@ -50,7 +50,7 @@ export function DailyBriefingClient() {
           </div>
         )}
         {briefing && !isPending && (
-          <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
+          <div className="whitespace-pre-wrap text-sm text-foreground">
             {briefing}
           </div>
         )}
