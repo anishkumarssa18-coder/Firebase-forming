@@ -3,7 +3,6 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/shared/header';
 import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/context/auth-context';
 import { LanguageProvider } from '@/context/language-context';
 import { ThemeProvider } from '@/context/theme-provider';
 
@@ -34,15 +33,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <LanguageProvider>
-              <Header />
-              <main className="flex-1 container mx-auto px-4 py-8">
-                {children}
-              </main>
-              <Toaster />
-            </LanguageProvider>
-          </AuthProvider>
+          <LanguageProvider>
+            <Header />
+            <main className="flex-1 container mx-auto px-4 py-8">
+              {children}
+            </main>
+            <Toaster />
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

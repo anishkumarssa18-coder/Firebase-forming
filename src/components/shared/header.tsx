@@ -8,26 +8,20 @@ import {
   Menu,
   Sprout,
   Bell,
-  User,
-  LogOut,
-  LogIn,
   Languages,
   Moon,
   Sun,
   Palette,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { signOut } from 'firebase/auth';
 import { useTheme } from 'next-themes';
 
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/context/auth-context';
-import { auth } from '@/lib/firebase';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +34,6 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useLanguage, languages, useTranslation } from '@/context/language-context';
 import {
   Select,
@@ -61,17 +54,9 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
-  const router = useRouter();
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
   const { setTheme } = useTheme();
-
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    router.push('/');
-  };
 
   const NavLink = ({
     href,
@@ -176,47 +161,6 @@ export function Header() {
               </SelectContent>
             </Select>
           </div>
-           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar>
-                    <AvatarImage src={user.photoURL || undefined} alt={user.displayName || t('header.user')} />
-                    <AvatarFallback>{user.displayName ? user.displayName[0].toUpperCase() : <User />}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>{t('header.profile')}</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>{t('header.logout')}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button asChild variant="ghost" className="hidden md:flex">
-                <Link href="/login">
-                    <LogIn className="mr-2"/>
-                    {t('header.login')}
-                </Link>
-            </Button>
-          )}
 
           <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -235,33 +179,6 @@ export function Header() {
                     {navLinks.map((link) => (
                       <NavLink key={link.href} href={link.href} labelKey={link.labelKey} icon={link.icon} isMobile />
                     ))}
-                  </div>
-                  <div className="mt-auto pt-6 border-t">
-                  {user ? (
-                    <div className='space-y-4'>
-                      <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium transition-colors hover:bg-accent">
-                        <Avatar>
-                            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || t('header.user')} />
-                            <AvatarFallback>{user.displayName ? user.displayName[0].toUpperCase() : <User />}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <p>{user.displayName}</p>
-                            <p className="text-sm text-muted-foreground">{user.email}</p>
-                        </div>
-                      </Link>
-                      <Button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} variant="outline" className="w-full justify-start text-lg">
-                        <LogOut className="mr-2 h-5 w-5" />
-                        {t('header.logout')}
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button asChild className="w-full justify-start text-lg" size="lg">
-                      <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                        <LogIn className="mr-2 h-5 w-5" />
-                        {t('header.loginSignup')}
-                      </Link>
-                    </Button>
-                  )}
                   </div>
                 </div>
               </SheetContent>
