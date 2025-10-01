@@ -4,24 +4,35 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { AdvisoryClient } from './components/advisory-client';
 import { useTranslation } from '@/context/language-context';
 import { useMemo, useEffect, useState } from 'react';
+import { DailyBriefingClient } from './components/daily-briefing-client';
 
-// Function to shuffle an array
-function shuffle<T>(array: T[]): T[] {
-  let currentIndex = array.length,  randomIndex;
+// Simple pseudo-random number generator for deterministic shuffling
+function prng(seed: number) {
+  let value = seed;
+  return function() {
+    value = (value * 9301 + 49297) % 233280;
+    return value / 233280;
+  };
+}
+
+// Function to shuffle an array deterministically based on a seed
+function shuffle<T>(array: T[], seed: number): T[] {
+  const random = prng(seed);
+  let currentIndex = array.length, randomIndex;
+  const newArray = [...array];
 
   // While there remain elements to shuffle.
   while (currentIndex > 0) {
-
     // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
+    randomIndex = Math.floor(random() * currentIndex);
     currentIndex--;
 
     // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
+    [newArray[currentIndex], newArray[randomIndex]] = [
+      newArray[randomIndex], newArray[currentIndex]];
   }
 
-  return array;
+  return newArray;
 }
 
 
@@ -31,7 +42,9 @@ export default function AdvisoryHubPage() {
   const [shuffledArticles, setShuffledArticles] = useState([...advisoryArticles]);
 
   useEffect(() => {
-    setShuffledArticles(shuffle([...advisoryArticles]));
+    // Use the current date as a seed for daily shuffling
+    const seed = new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 100 + new Date().getDate();
+    setShuffledArticles(shuffle([...advisoryArticles], seed));
   }, []);
 
   const articlesWithImages = useMemo(() => {
@@ -58,6 +71,9 @@ export default function AdvisoryHubPage() {
           {t('advisory.description')}
         </p>
       </div>
+
+      <DailyBriefingClient />
+
       <AdvisoryClient articles={articlesWithImages} categories={translatedCategories} />
     </div>
   );
