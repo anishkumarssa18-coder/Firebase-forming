@@ -2,7 +2,7 @@
 
 import { dailyBriefing } from '@/ai/flows/daily-briefing';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useLanguage, languages } from '@/context/language-context';
+import { useLanguage } from '@/context/language-context';
 import { AlertTriangle, Loader2, Newspaper } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
 
@@ -17,8 +17,7 @@ export function DailyBriefingClient() {
       setError(null);
       startTransition(async () => {
         try {
-          const languageLabel = languages.find(l => l.value === language)?.label || 'English';
-          const result = await dailyBriefing({ language: languageLabel });
+          const result = await dailyBriefing({ language: language });
           setBriefing(result.briefing);
         } catch (err) {
           console.error('Failed to fetch daily briefing:', err);

@@ -11,7 +11,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 const DailyBriefingInputSchema = z.object({
-  language: z.string().describe('The language for the briefing (e.g., English, Hindi).'),
+  language: z.string().describe('The language code for the briefing (e.g., en, hi).'),
 });
 export type DailyBriefingInput = z.infer<typeof DailyBriefingInputSchema>;
 
@@ -30,7 +30,7 @@ const dailyBriefingPrompt = ai.definePrompt({
   output: { schema: DailyBriefingOutputSchema },
   prompt: `You are an agricultural expert AI. Generate a short, scannable "Daily Farmer's Briefing" for today, {{currentDate}}.
 
-The briefing should be in {{{language}}}.
+The briefing should be in the language corresponding to this language code: {{{language}}}.
 
 Include 3-4 bullet points covering a mix of the following topics:
 - A critical, timely farming tip (e.g., related to current season, weather).
