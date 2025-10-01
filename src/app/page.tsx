@@ -17,6 +17,7 @@ const defaultWeather: {
     location: 'Loading...',
     temperature: 0,
     condition: '...',
+    description: '...',
     wind: '... km/h',
     humidity: '...%',
     windSpeed: 0,
@@ -95,7 +96,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && weather.currentWeather.location !== 'Loading...') {
-        const { windSpeed, temperature, condition } = weather.currentWeather;
+        const { windSpeed, temperature, description } = weather.currentWeather;
 
         if (windSpeed > windThreshold) {
             toast({
@@ -124,7 +125,7 @@ export default function Home() {
             });
         }
         
-        const lowerCaseCondition = condition.toLowerCase();
+        const lowerCaseCondition = description.toLowerCase();
         if (lowerCaseCondition.includes('heavy rain') || lowerCaseCondition.includes('thunderstorm')) {
             toast({
                 variant: 'destructive',
@@ -187,7 +188,7 @@ export default function Home() {
                       </div>
                       <div className='flex flex-col items-center'>
                           <WeatherIcon condition={currentWeather.condition} className="w-8 h-8 text-yellow-500" />
-                          <p className="text-lg text-muted-foreground">{currentWeather.condition}</p>
+                          <p className="text-lg text-muted-foreground capitalize">{currentWeather.description}</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">

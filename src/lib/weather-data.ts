@@ -4,6 +4,7 @@ export type CurrentWeather = {
   location: string;
   temperature: number;
   condition: string;
+  description: string;
   wind: string;
   humidity: string;
   windSpeed: number;
@@ -44,6 +45,7 @@ export async function getRealTimeWeather(
         location: 'API Key Missing',
         temperature: 0,
         condition: '...',
+        description: '...',
         wind: '... km/h',
         humidity: '...%',
         windSpeed: 0,
@@ -76,11 +78,11 @@ export async function getRealTimeWeather(
         ? `${weatherData.name}, ${weatherData.sys.country}` 
         : 'Unknown Location');
 
-
     const currentWeather: CurrentWeather = {
       location: locationName,
       temperature: Math.round(weatherData.main.temp),
       condition: weatherData.weather[0].main,
+      description: weatherData.weather[0].description,
       wind: `${weatherData.wind.speed} km/h`,
       humidity: `${weatherData.main.humidity}%`,
       windSpeed: weatherData.wind.speed,
@@ -102,12 +104,12 @@ export async function getRealTimeWeather(
     return { currentWeather, forecast };
   } catch (error) {
     console.error('Failed to get real-time weather:', error);
-    // Provide a structured fallback in case of any error
     return {
       currentWeather: {
         location: 'Unknown Location',
         temperature: 0,
         condition: 'Error',
+        description: 'Error',
         wind: 'N/A',
         humidity: 'N/A',
         windSpeed: 0,
