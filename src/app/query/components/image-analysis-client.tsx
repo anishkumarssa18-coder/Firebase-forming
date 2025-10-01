@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, X, Microscope, Loader2, Camera, RefreshCw } from 'lucide-react';
+import { Upload, X, Microscope, Loader2, Camera } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useTransition, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from '@/context/language-context';
@@ -27,6 +27,7 @@ export function ImageAnalysisClient() {
   const { t } = useTranslation();
 
   const getCameraPermission = useCallback(async () => {
+    if (hasCameraPermission) return; // aklready have it
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera not supported');
@@ -47,7 +48,7 @@ export function ImageAnalysisClient() {
       });
       setCameraOpen(false);
     }
-  }, [toast]);
+  }, [toast, hasCameraPermission]);
 
   useEffect(() => {
     if (isCameraOpen) {
@@ -117,6 +118,7 @@ export function ImageAnalysisClient() {
         setPreview(dataUrl);
         setFile(dataURLtoFile(dataUrl, `capture-${Date.now()}.jpg`));
         setCameraOpen(false);
+        setDiagnosis(null);
       }
     }
   };

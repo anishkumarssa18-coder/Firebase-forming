@@ -8,7 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Mic, MicOff, Send, User, Volume2, Loader2, VolumeX, VolumeOff, PlayCircle } from 'lucide-react';
+import { Bot, Mic, MicOff, Send, User, Volume2, Loader2, VolumeX, PlayCircle } from 'lucide-react';
 import { useState, useTransition, useRef, useEffect, useCallback } from 'react';
 import { useLanguage, useTranslation, languages } from '@/context/language-context';
 import { Switch } from '@/components/ui/switch';
@@ -33,7 +33,6 @@ export function AiAssistantClient() {
   const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const [isRecording, setIsRecording] = useState(false);
-  const [isUttering, setIsUttering] = useState(false);
   const [isTtsPending, setIsTtsPending] = useState<number | null>(null);
   const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('female');
@@ -60,9 +59,8 @@ export function AiAssistantClient() {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      audioRef.current = null;
-      setIsUttering(false);
       setCurrentlyPlayingIndex(null);
+      audioRef.current = null;
     }
   }, []);
 
@@ -70,16 +68,12 @@ export function AiAssistantClient() {
     stopCurrentAudio();
     const audio = new Audio(audioUrl);
     audioRef.current = audio;
-    setIsUttering(true);
     setCurrentlyPlayingIndex(messageIndex);
     audio.onended = () => {
-      setIsUttering(false);
       setCurrentlyPlayingIndex(null);
       audioRef.current = null;
     };
     audio.play().catch(() => {
-      // Handle cases where autoplay is blocked
-      setIsUttering(false);
       setCurrentlyPlayingIndex(null);
       toast({
         variant: "default",
@@ -248,17 +242,16 @@ export function AiAssistantClient() {
           <span>{t('aiAssistant.title')}</span>
           <div className="flex items-center gap-4">
              <div className="flex items-center space-x-2">
-                {autoPlayEnabled ? <Volume2 className="h-5 w-5"/> : <VolumeOff className="h-5 w-5"/>}
-                <Label htmlFor="autoplay-switch" className="text-sm font-medium cursor-pointer">{t('aiAssistant.autoPlay')}</Label>
                 <Switch
                   id="autoplay-switch"
                   checked={autoPlayEnabled}
                   onCheckedChange={setAutoPlayEnabled}
+                  aria-label="Auto-play audio"
                 />
+                <Label htmlFor="autoplay-switch" className="text-sm font-medium cursor-pointer">{t('aiAssistant.autoPlay')}</Label>
              </div>
-             <Button variant="outline" size="icon" onClick={toggleVoice}>
+             <Button variant="outline" size="icon" onClick={toggleVoice} aria-label="Switch voice">
                 {selectedVoice === 'female' ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
-                <span className="sr-only">Switch Voice</span>
             </Button>
           </div>
         </CardTitle>
@@ -302,7 +295,8 @@ export function AiAssistantClient() {
                                 handleTextToSpeech(msg.content, index);
                             }
                           }}
-                          disabled={isTtsPending !== null && isTtsPending !== index || msg.audioUrl === null}
+                          disabled={(isTtsPending !== null && isTtsPending !== index) || msg.audioUrl === null}
+                          aria-label={currentlyPlayingIndex === index ? "Stop" : "Play"}
                         >
                           {msg.audioUrl === null ? (
                             <VolumeX className="h-4 w-4 text-destructive" />

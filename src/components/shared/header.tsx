@@ -9,14 +9,12 @@ import {
   Sprout,
   Bell,
   Languages,
-  Moon,
-  Sun,
   Palette,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { useTheme } from '@/hooks/use-theme';
+import { useTheme } from 'next-themes';
 
 
 import { Button } from '@/components/ui/button';
@@ -32,7 +30,9 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
-  DropdownMenuPortal
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem
 } from '@/components/ui/dropdown-menu';
 import { useLanguage, languages, useTranslation } from '@/context/language-context';
 import {
@@ -51,12 +51,33 @@ const navLinks = [
   { href: '/alerts', labelKey: 'header.alerts', icon: Bell },
 ];
 
+const colorThemes = [
+  'default', 'forest', 'sky', 'rose', 'ocean', 'sunset', 'lavender', 'sunflower', 'cosmic'
+];
+
+
 export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
-  const { setTheme, mode, themes, resolvedMode } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+
+  const [mode, colorTheme] = theme?.split('-') ?? ['light', 'default'];
+
+  const handleThemeChange = (newColor: string) => {
+    const newTheme = resolvedTheme === 'dark' && newColor !== 'default' ? `dark-${newColor}` : newColor;
+    setTheme(newTheme);
+  }
+
+  const handleModeChange = (newMode: 'light' | 'dark' | 'system') => {
+    if (newMode === 'system') {
+      setTheme(colorTheme);
+      return;
+    }
+    const newTheme = colorTheme !== 'default' ? `${newMode}-${colorTheme}` : newMode;
+    setTheme(newTheme);
+  }
 
   const NavLink = ({
     href,
@@ -115,29 +136,30 @@ export function Header() {
                 <DropdownMenuSeparator/>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
-                    <Sun className="mr-2 h-4 w-4" />
-                    <span>Mode</span>
+                    Mode
                   </DropdownMenuSubTrigger>
                    <DropdownMenuPortal>
                       <DropdownMenuSubContent>
-                        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+                         <DropdownMenuRadioGroup value={resolvedTheme} onValueChange={(v) => handleModeChange(v as any)}>
+                            <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+                          </DropdownMenuRadioGroup>
                       </DropdownMenuSubContent>
                     </DropdownMenuPortal>
                 </DropdownMenuSub>
                  <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
-                     <Palette className="mr-2 h-4 w-4" />
-                     <span>Theme</span>
+                     Theme
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
-                      {themes.map((theme) => (
-                        <DropdownMenuItem key={theme} onClick={() => setTheme(theme)}>
-                          <span className="capitalize">{theme}</span>
-                        </DropdownMenuItem>
-                      ))}
+                       <DropdownMenuRadioGroup value={colorTheme} onValueChange={handleThemeChange}>
+                          {colorThemes.map((ct) => (
+                            <DropdownMenuRadioItem key={ct} value={ct}>
+                              <span className="capitalize">{ct}</span>
+                            </DropdownMenuRadioItem>
+                          ))}
+                        </DropdownMenuRadioGroup>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
