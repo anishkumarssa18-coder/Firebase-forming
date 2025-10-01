@@ -8,9 +8,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Mic, MicOff, Send, User, Volume2, Loader2, VolumeX } from 'lucide-react';
+import { Bot, Mic, MicOff, Send, User, Volume2, Loader2, VolumeX, VolumeOff } from 'lucide-react';
 import { useState, useTransition, useRef, useEffect, useCallback } from 'react';
 import { useLanguage, useTranslation, languages } from '@/context/language-context';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -35,9 +37,11 @@ export function AiAssistantClient() {
   const [isTtsPending, setIsTtsPending] = useState<number | null>(null);
   const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('female');
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(false);
   const { toast } = useToast();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -50,8 +54,42 @@ export function AiAssistantClient() {
     }
   }, [conversation]);
 
+  const stopCurrentAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+      setIsUttering(false);
+    }
+  }, []);
+
+  const playAudio = useCallback((audioUrl: string) => {
+    stopCurrentAudio();
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+    setIsUttering(true);
+    audio.onended = () => {
+      setIsUttering(false);
+      audioRef.current = null;
+    };
+    audio.play().catch(() => {
+      // Handle cases where autoplay is blocked
+      setIsUttering(false);
+      toast({
+        variant: "default",
+        title: "Audio Playback Blocked",
+        description: "Please interact with the page to enable audio."
+      });
+    });
+  }, [stopCurrentAudio, toast]);
+
+
   const handleTextToSpeech = useCallback(async (text: string, messageIndex: number) => {
+    if (isTtsPending !== null) return;
+    
+    stopCurrentAudio();
     setIsTtsPending(messageIndex);
+    
     try {
       const result = await textToSpeech({ text, voice: voices[selectedVoice] });
       
@@ -61,20 +99,15 @@ export function AiAssistantClient() {
           title: 'Speech Error',
           description: result.error,
         });
-        // Mark as failed so we don't retry
         setConversation(prev => {
             const newConversation = [...prev];
-            if(newConversation[messageIndex]) {
-                newConversation[messageIndex].audioUrl = null;
-            }
+            if(newConversation[messageIndex]) newConversation[messageIndex].audioUrl = null;
             return newConversation;
         });
       } else if (result.audioDataUri) {
         setConversation(prev => {
             const newConversation = [...prev];
-            if(newConversation[messageIndex]) {
-                newConversation[messageIndex].audioUrl = result.audioDataUri;
-            }
+            if(newConversation[messageIndex]) newConversation[messageIndex].audioUrl = result.audioDataUri;
             return newConversation;
         });
         playAudio(result.audioDataUri);
@@ -88,28 +121,20 @@ export function AiAssistantClient() {
         title: 'Speech Error',
         description: error.message || 'Could not generate audio for the response.',
       });
-      // Mark as failed so we don't retry
       setConversation(prev => {
           const newConversation = [...prev];
-          if(newConversation[messageIndex]) {
-              newConversation[messageIndex].audioUrl = null;
-          }
+          if(newConversation[messageIndex]) newConversation[messageIndex].audioUrl = null;
           return newConversation;
       });
     } finally {
         setIsTtsPending(null);
     }
-  }, [toast, selectedVoice]);
-
-  const playAudio = (audioUrl: string) => {
-    const audio = new Audio(audioUrl);
-    setIsUttering(true);
-    audio.onended = () => setIsUttering(false);
-    audio.play();
-  };
+  }, [toast, selectedVoice, playAudio, stopCurrentAudio, isTtsPending]);
 
   const handleSubmit = useCallback(async (text: string) => {
     if (!text.trim() || isPending) return;
+    
+    stopCurrentAudio();
 
     const userMessage: Message = { role: 'user', content: text };
     setConversation((prev) => [...prev, userMessage]);
@@ -135,7 +160,15 @@ export function AiAssistantClient() {
         setConversation((prev) => prev.slice(0, -1));
       }
     });
-  }, [isPending, language, t, toast]);
+  }, [isPending, language, t, toast, stopCurrentAudio]);
+
+  // Effect for auto-playing new assistant messages
+  useEffect(() => {
+    const lastMessage = conversation[conversation.length - 1];
+    if (autoPlayEnabled && lastMessage?.role === 'assistant' && lastMessage.audioUrl === undefined) {
+      handleTextToSpeech(lastMessage.content, conversation.length - 1);
+    }
+  }, [conversation, autoPlayEnabled, handleTextToSpeech]);
 
 
   const toggleRecording = () => {
@@ -153,6 +186,7 @@ export function AiAssistantClient() {
       recognitionRef.current?.stop();
       setIsRecording(false);
     } else {
+      stopCurrentAudio();
       const recognition = new SpeechRecognition();
       recognition.lang = language;
       recognition.interimResults = false;
@@ -171,6 +205,7 @@ export function AiAssistantClient() {
           transcript += event.results[i][0].transcript;
         }
         setInput(transcript);
+        handleSubmit(transcript); // Automatically submit after speech is recognized
       };
 
       recognition.onend = () => {
@@ -205,10 +240,21 @@ export function AiAssistantClient() {
       <CardHeader>
         <CardTitle className="flex items-center justify-between text-primary">
           <span>{t('aiAssistant.title')}</span>
-           <Button variant="outline" size="icon" onClick={toggleVoice}>
-              {selectedVoice === 'female' ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
-              <span className="sr-only">Switch Voice</span>
-          </Button>
+          <div className="flex items-center gap-4">
+             <div className="flex items-center space-x-2">
+                {autoPlayEnabled ? <Volume2 className="h-5 w-5"/> : <VolumeOff className="h-5 w-5"/>}
+                <Label htmlFor="autoplay-switch" className="text-sm font-medium cursor-pointer">{t('aiAssistant.autoPlay')}</Label>
+                <Switch
+                  id="autoplay-switch"
+                  checked={autoPlayEnabled}
+                  onCheckedChange={setAutoPlayEnabled}
+                />
+             </div>
+             <Button variant="outline" size="icon" onClick={toggleVoice}>
+                {selectedVoice === 'female' ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
+                <span className="sr-only">Switch Voice</span>
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>

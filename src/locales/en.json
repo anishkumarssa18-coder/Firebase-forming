@@ -63,7 +63,8 @@
     "inputPlaceholder": "Ask a question in {language}...",
     "send": "Send",
     "errorTitle": "Error",
-    "errorDescription": "Failed to get a response from the AI assistant."
+    "errorDescription": "Failed to get a response from the AI assistant.",
+    "autoPlay": "Auto-play"
   },
   "imageAnalysis": {
     "title": "Crop & Soil Image Analysis",
