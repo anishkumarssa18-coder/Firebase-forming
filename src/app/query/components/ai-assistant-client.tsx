@@ -32,7 +32,7 @@ export function AiAssistantClient() {
   const [isPending, startTransition] = useTransition();
   const [isRecording, setIsRecording] = useState(false);
   const [isUttering, setIsUttering] = useState(false);
-  const [isTtsPending, setIsTtsPending] = useState(false);
+  const [isTtsPending, setIsTtsPending] = useState<number | null>(null);
   const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('female');
   const { toast } = useToast();
@@ -51,7 +51,7 @@ export function AiAssistantClient() {
   }, [conversation]);
 
   const handleTextToSpeech = useCallback(async (text: string, messageIndex: number) => {
-    setIsTtsPending(true);
+    setIsTtsPending(messageIndex);
     try {
       const result = await textToSpeech({ text, voice: voices[selectedVoice] });
       if (result && result.audioDataUri) {
@@ -72,7 +72,7 @@ export function AiAssistantClient() {
         description: 'Failed to generate audio for the response.',
       });
     } finally {
-        setIsTtsPending(false);
+        setIsTtsPending(null);
     }
   }, [toast, selectedVoice]);
 
@@ -96,9 +96,7 @@ export function AiAssistantClient() {
         const result = await aiQuerySupport({ query: text, language: languageLabel });
         if (result && result.advice) {
           const assistantMessage: Message = { role: 'assistant', content: result.advice };
-          const newConversationLength = conversation.length + 2; // user's + assistant's
           setConversation((prev) => [...prev, assistantMessage]);
-          handleTextToSpeech(result.advice, newConversationLength - 1);
         } else {
           throw new Error('Invalid response from AI');
         }
@@ -109,10 +107,10 @@ export function AiAssistantClient() {
           title: t('aiAssistant.errorTitle'),
           description: t('aiAssistant.errorDescription'),
         });
-        setConversation((prev) => prev.slice(0, -1)); // Remove the user's message on error
+        setConversation((prev) => prev.slice(0, -1));
       }
     });
-  }, [isPending, language, t, toast, conversation.length, handleTextToSpeech]);
+  }, [isPending, language, t, toast]);
 
 
   const toggleRecording = () => {
@@ -145,10 +143,12 @@ export function AiAssistantClient() {
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
+        handleSubmit(transcript);
       };
 
       recognition.onend = () => {
         setIsRecording(false);
+        setInput('');
       };
       
       recognition.onerror = (event) => {
@@ -203,19 +203,22 @@ export function AiAssistantClient() {
                   msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
                 )}>
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  {msg.role === 'assistant' && msg.audioUrl && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => playAudio(msg.audioUrl!)}
-                      disabled={isUttering || isTtsPending}
-                    >
-                      <Volume2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                   {msg.role === 'assistant' && !msg.audioUrl && isTtsPending && index === conversation.length -1 && (
-                     <Loader2 className="h-4 w-4 animate-spin"/>
+                  {msg.role === 'assistant' && (
+                    <>
+                      {isTtsPending === index ? (
+                        <Loader2 className="h-4 w-4 animate-spin"/>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => msg.audioUrl ? playAudio(msg.audioUrl) : handleTextToSpeech(msg.content, index)}
+                          disabled={isUttering || isTtsPending !== null}
+                        >
+                          <Volume2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </>
                   )}
                 </div>
                 {msg.role === 'user' && (
