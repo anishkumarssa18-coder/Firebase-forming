@@ -4,7 +4,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { alerts, type Alert as AlertType } from '@/lib/alerts-data';
 import { cn } from '@/lib/utils';
 import { AlertOctagon, AlertTriangle, Info, Calendar, Clock } from 'lucide-react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@/context/language-context';
 
 const severityConfig = {
@@ -24,8 +24,17 @@ const severityConfig = {
 
 const AlertCard: React.FC<{ alert: AlertType }> = ({ alert }) => {
   const { t } = useTranslation();
+  const [formattedDate, setFormattedDate] = useState('');
+  const [formattedTime, setFormattedTime] = useState('');
+
+  useEffect(() => {
+    const alertDate = new Date(alert.date);
+    setFormattedDate(alertDate.toLocaleDateString());
+    setFormattedTime(alertDate.toLocaleTimeString());
+  }, [alert.date]);
+
+
   const config = severityConfig[alert.severity];
-  const alertDate = new Date(alert.date);
   const translatedTitle = t(`alerts.items.${alert.id}.title`);
   const translatedDescription = t(`alerts.items.${alert.id}.description`);
 
@@ -41,11 +50,11 @@ const AlertCard: React.FC<{ alert: AlertType }> = ({ alert }) => {
           <div className="flex-shrink-0 flex flex-col items-end gap-2 text-xs text-foreground/60">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              <span>{alertDate.toLocaleDateString()}</span>
+              <span>{formattedDate || '...'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              <span>{alertDate.toLocaleTimeString()}</span>
+              <span>{formattedTime || '...'}</span>
             </div>
           </div>
         </div>
