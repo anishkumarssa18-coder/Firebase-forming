@@ -69,11 +69,13 @@ const textToSpeechFlow = ai.defineFlow(
   },
   async ({ text, voice }) => {
     try {
+      const ttsModel = 'googleai/gemini-2.5-flash-preview-tts';
       const { media } = await ai.generate({
-        model: 'googleai/gemini-2.5-flash-preview-tts',
+        model: ttsModel,
         config: {
           responseModalities: ['AUDIO'],
           speechConfig: {
+            model: ttsModel,
             voiceConfig: {
               prebuiltVoiceConfig: { voiceName: voice || 'Achernar' },
             },
@@ -82,7 +84,7 @@ const textToSpeechFlow = ai.defineFlow(
         prompt: text,
       });
 
-      if (!media) {
+      if (!media?.url) {
         throw new Error('No media returned from TTS model');
       }
 
