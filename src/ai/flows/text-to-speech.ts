@@ -72,10 +72,12 @@ const textToSpeechFlow = ai.defineFlow(
     try {
       const { media } = await ai.generate({
         model: googleAI.model('tts-1'),
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: voice || 'Achernar' },
-          },
+        config: {
+            speechConfig: {
+                voiceConfig: {
+                    prebuiltVoiceConfig: { voiceName: voice || 'Achernar' },
+                },
+            },
         },
         prompt: text,
       });
