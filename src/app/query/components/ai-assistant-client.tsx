@@ -155,7 +155,8 @@ export function AiAssistantClient() {
         if (input.trim() === 'Listening...' || input.trim() === '') {
             setInput('');
         } else {
-           handleSubmit(input);
+           // Wait for final result then submit
+           setTimeout(() => handleSubmit(input), 100);
         }
       };
       

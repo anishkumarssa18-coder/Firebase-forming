@@ -18,12 +18,12 @@ import {z} from 'genkit';
 
 const AIQuerySupportInputSchema = z.object({
   query: z.string().describe('The farmer’s question about crops, pests, fertilizers, irrigation, or government schemes.'),
-  language: z.string().describe('The language in which the question is asked (e.g., English, Hindi).'),
+  language: z.string().describe('The language in which the question is asked and the response should be provided (e.g., English, Hindi).'),
 });
 export type AIQuerySupportInput = z.infer<typeof AIQuerySupportInputSchema>;
 
 const AIQuerySupportOutputSchema = z.object({
-  advice: z.string().describe('The AI’s advisory response to the farmer’s question, provided in simple language.'),
+  advice: z.string().describe('The AI’s advisory response to the farmer’s question, provided in the requested language.'),
 });
 export type AIQuerySupportOutput = z.infer<typeof AIQuerySupportOutputSchema>;
 
@@ -37,12 +37,12 @@ const aiQuerySupportPrompt = ai.definePrompt({
   output: {schema: AIQuerySupportOutputSchema},
   prompt: `You are an AI assistant providing agricultural advice to farmers.
 
-The farmer will ask a question in their local language, and you will provide an answer in the same language.
+The farmer will ask a question. You must provide an answer in the specified language.
 
 Question: {{{query}}}
-Language: {{{language}}}
+Language for Response: {{{language}}}
 
-Provide clear, concise, and actionable advice in simple language that is easy for farmers to understand.
+Provide a clear, concise, and actionable answer in the specified language.
 `,
 });
 
