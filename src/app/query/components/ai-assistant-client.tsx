@@ -8,7 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Mic, MicOff, Send, User, Volume2, Loader2, VolumeX, VolumeOff } from 'lucide-react';
+import { Bot, Mic, MicOff, Send, User, Volume2, Loader2, VolumeX, VolumeOff, PlayCircle } from 'lucide-react';
 import { useState, useTransition, useRef, useEffect, useCallback } from 'react';
 import { useLanguage, useTranslation, languages } from '@/context/language-context';
 import { Switch } from '@/components/ui/switch';
@@ -42,6 +42,8 @@ export function AiAssistantClient() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [currentlyPlayingIndex, setCurrentlyPlayingIndex] = useState<number | null>(null);
+
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -60,21 +62,25 @@ export function AiAssistantClient() {
       audioRef.current.currentTime = 0;
       audioRef.current = null;
       setIsUttering(false);
+      setCurrentlyPlayingIndex(null);
     }
   }, []);
 
-  const playAudio = useCallback((audioUrl: string) => {
+  const playAudio = useCallback((audioUrl: string, messageIndex: number) => {
     stopCurrentAudio();
     const audio = new Audio(audioUrl);
     audioRef.current = audio;
     setIsUttering(true);
+    setCurrentlyPlayingIndex(messageIndex);
     audio.onended = () => {
       setIsUttering(false);
+      setCurrentlyPlayingIndex(null);
       audioRef.current = null;
     };
     audio.play().catch(() => {
       // Handle cases where autoplay is blocked
       setIsUttering(false);
+      setCurrentlyPlayingIndex(null);
       toast({
         variant: "default",
         title: "Audio Playback Blocked",
@@ -110,7 +116,7 @@ export function AiAssistantClient() {
             if(newConversation[messageIndex]) newConversation[messageIndex].audioUrl = result.audioDataUri;
             return newConversation;
         });
-        playAudio(result.audioDataUri);
+        playAudio(result.audioDataUri, messageIndex);
       }
     } catch (error: any) {
       console.error('TTS Error:', error);
@@ -285,10 +291,24 @@ export function AiAssistantClient() {
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          onClick={() => msg.audioUrl ? playAudio(msg.audioUrl) : handleTextToSpeech(msg.content, index)}
-                          disabled={isUttering || isTtsPending !== null || msg.audioUrl === null}
+                          onClick={() => {
+                            if (currentlyPlayingIndex === index) {
+                                stopCurrentAudio();
+                            } else if (msg.audioUrl) {
+                                playAudio(msg.audioUrl, index);
+                            } else {
+                                handleTextToSpeech(msg.content, index);
+                            }
+                          }}
+                          disabled={isTtsPending !== null && isTtsPending !== index}
                         >
-                          {msg.audioUrl === null ? <VolumeX className="h-4 w-4 text-destructive" /> : <Volume2 className="h-4 w-4" />}
+                          {msg.audioUrl === null ? (
+                            <VolumeX className="h-4 w-4 text-destructive" />
+                          ) : currentlyPlayingIndex === index ? (
+                            <PlayCircle className="h-4 w-4 text-primary animate-pulse" />
+                          ) : (
+                            <Volume2 className="h-4 w-4" />
+                          )}
                         </Button>
                       )}
                     </>
@@ -340,3 +360,5 @@ export function AiAssistantClient() {
     </Card>
   );
 }
+
+    
