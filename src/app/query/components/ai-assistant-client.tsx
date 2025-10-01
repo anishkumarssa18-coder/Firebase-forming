@@ -133,7 +133,7 @@ export function AiAssistantClient() {
       const recognition = new SpeechRecognition();
       recognition.lang = language;
       recognition.interimResults = false;
-      recognition.continuous = true;
+      recognition.continuous = false;
 
       recognitionRef.current = recognition;
 
@@ -143,23 +143,12 @@ export function AiAssistantClient() {
       };
 
       recognition.onresult = (event) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          }
-        }
-        // Only update if there is a final transcript
-        if (finalTranscript) {
-             setInput(prev => (prev === 'Listening...' ? '' : prev) + finalTranscript);
-        }
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
       };
 
       recognition.onend = () => {
         setIsRecording(false);
-        if (input.trim() === 'Listening...') {
-            setInput('');
-        }
       };
       
       recognition.onerror = (event) => {
