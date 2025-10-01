@@ -43,14 +43,14 @@ export async function getRealTimeWeather(
     // Return default data to prevent app crash
     return {
       currentWeather: {
-        location: fallbackCityName || 'API Key Missing',
+        location: 'API Key Missing',
         temperature: 0,
         condition: '...',
         wind: '... km/h',
         humidity: '...%',
         windSpeed: 0,
       },
-      forecast: Array(7).fill({ day: '...', temp: 0, condition: 'Cloudy' }),
+      forecast: [],
     };
   }
 
@@ -81,6 +81,7 @@ export async function getRealTimeWeather(
     const locationName = (weatherData.name && weatherData.sys.country 
         ? `${weatherData.name}, ${weatherData.sys.country}` 
         : fallbackCityName) || 'Unknown Location';
+
 
     const currentWeather: CurrentWeather = {
       location: locationName,

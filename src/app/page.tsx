@@ -21,7 +21,7 @@ const defaultWeather: {
     humidity: '...%',
     windSpeed: 0,
   },
-  forecast: Array(7).fill({ day: '...', temp: 0, condition: 'Cloudy' })
+  forecast: []
 };
 
 export default function Home() {
@@ -205,23 +205,25 @@ export default function Home() {
           {t('home.forecastTitle')}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-          {forecast.map((day, index) => (
-            <Card key={index} className="flex flex-col items-center p-4 shadow-md transition-transform hover:scale-105 hover:shadow-xl">
-               {loading ? (
-                 <div className="flex flex-col items-center justify-center h-24">
-                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                 </div>
-              ) : (
-                <>
-                    <p className="font-bold">{day.day}</p>
-                    <div className="my-2">
-                        <WeatherIcon condition={day.condition} className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <p className="font-semibold">{day.temp}°C</p>
-                </>
-              )}
-            </Card>
-          ))}
+          {loading ? (
+             Array(7).fill(0).map((_, index) => (
+                <Card key={index} className="flex flex-col items-center p-4 shadow-md">
+                   <div className="flex flex-col items-center justify-center h-24">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                   </div>
+                </Card>
+              ))
+          ) : (
+            forecast.map((day, index) => (
+              <Card key={index} className="flex flex-col items-center p-4 shadow-md transition-transform hover:scale-105 hover:shadow-xl">
+                  <p className="font-bold">{day.day}</p>
+                  <div className="my-2">
+                      <WeatherIcon condition={day.condition} className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="font-semibold">{day.temp}°C</p>
+              </Card>
+            ))
+          )}
         </div>
       </section>
       
