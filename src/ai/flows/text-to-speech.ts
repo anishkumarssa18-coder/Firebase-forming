@@ -8,6 +8,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'genkit';
 import wav from 'wav';
 
@@ -70,14 +71,11 @@ const textToSpeechFlow = ai.defineFlow(
   async ({ text, voice }) => {
     try {
       const { media } = await ai.generate({
-        model: 'googleai/gemini-2.5-flash-preview-tts',
-        config: {
-          responseModalities: ['AUDIO'],
-        },
+        model: googleAI.model('tts-1'),
         speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: voice || 'Achernar' },
-            },
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: voice || 'Achernar' },
+          },
         },
         prompt: text,
       });
@@ -98,7 +96,7 @@ const textToSpeechFlow = ai.defineFlow(
       };
     } catch (err: any) {
       console.error("Text-to-speech flow failed", err);
-      // Check for quota error more reliably
+      // Check for quota error more reliably by inspecting the stringified error.
       const errorMessage = (err.stack || err.message || '').toString();
       if (errorMessage.includes('429') || errorMessage.includes('Quota')) {
         return { error: 'Text-to-speech quota exceeded. Please try again later.' };
