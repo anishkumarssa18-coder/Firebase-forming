@@ -155,7 +155,7 @@ export function ImageAnalysisClient() {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle>{t('imageAnalysis.title')}</CardTitle>
+        <CardTitle className="text-primary">{t('imageAnalysis.title')}</CardTitle>
         <CardDescription>{t('imageAnalysis.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -241,7 +241,7 @@ export function ImageAnalysisClient() {
         {diagnosis && (
           <Card className="bg-background">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Microscope className="h-5 w-5 text-primary" /> {t('imageAnalysis.diagnosisResultTitle')}</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-primary"><Microscope className="h-5 w-5 text-primary" /> {t('imageAnalysis.diagnosisResultTitle')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm whitespace-pre-wrap">{diagnosis}</p>

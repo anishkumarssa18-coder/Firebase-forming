@@ -148,7 +148,7 @@ export default function Home() {
         
         <Card className="max-w-md mx-auto shadow-lg border-2 border-primary/20 mt-8">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+            <CardTitle className="flex items-center justify-between text-primary">
               <span>{loading ? t('home.fetchingLocation') : currentWeather.location}</span>
               <Button variant="ghost" size="icon" onClick={requestLocationAndUpdateWeather} disabled={loading} className="w-8 h-8">
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LocateFixed className="w-5 h-5" />}
@@ -186,7 +186,7 @@ export default function Home() {
       </section>
 
       <section className="space-y-6">
-        <h2 className="text-2xl md:text-3xl font-bold font-headline text-center">
+        <h2 className="text-2xl md:text-3xl font-bold font-headline text-center text-primary">
           {t('home.forecastTitle')}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
@@ -212,7 +212,7 @@ export default function Home() {
 
       <section className="text-center py-8">
         <Card className="bg-primary/10 border-primary/20 max-w-4xl mx-auto p-8">
-          <h2 className="text-2xl md:text-3xl font-bold font-headline">
+          <h2 className="text-2xl md:text-3xl font-bold font-headline text-primary">
             {t('home.haveQuestion')}
           </h2>
           <p className="mt-2 text-muted-foreground">

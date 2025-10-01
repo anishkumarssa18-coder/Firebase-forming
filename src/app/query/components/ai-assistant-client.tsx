@@ -141,14 +141,18 @@ export function AiAssistantClient() {
       };
 
       recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
+        let transcript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
         setInput(transcript);
-        handleSubmit(transcript);
       };
 
       recognition.onend = () => {
         setIsRecording(false);
-        setInput('');
+        if (input === 'Listening...') {
+            setInput('');
+        }
       };
       
       recognition.onerror = (event) => {
@@ -174,7 +178,7 @@ export function AiAssistantClient() {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-primary">
           <span>{t('aiAssistant.title')}</span>
            <Button variant="outline" size="icon" onClick={toggleVoice}>
               {selectedVoice === 'female' ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
