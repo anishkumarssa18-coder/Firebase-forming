@@ -15,7 +15,7 @@ import { useLanguage, useTranslation, languages } from '@/context/language-conte
 type Message = {
   role: 'user' | 'assistant';
   content: string;
-  audioUrl?: string | null; // null means TTS failed
+  audioUrl?: string | null; // undefined: not tried, null: failed, string: success
 };
 
 type VoiceOption = 'male' | 'female';
@@ -54,16 +54,8 @@ export function AiAssistantClient() {
     setIsTtsPending(messageIndex);
     try {
       const result = await textToSpeech({ text, voice: voices[selectedVoice] });
-      if (result && result.audioDataUri) {
-        setConversation(prev => {
-            const newConversation = [...prev];
-            if(newConversation[messageIndex]) {
-                newConversation[messageIndex].audioUrl = result.audioDataUri;
-            }
-            return newConversation;
-        });
-        playAudio(result.audioDataUri);
-      } else if (result.error) {
+      
+      if (result.error) {
         toast({
           variant: 'destructive',
           title: 'Speech Error',
@@ -77,6 +69,15 @@ export function AiAssistantClient() {
             }
             return newConversation;
         });
+      } else if (result.audioDataUri) {
+        setConversation(prev => {
+            const newConversation = [...prev];
+            if(newConversation[messageIndex]) {
+                newConversation[messageIndex].audioUrl = result.audioDataUri;
+            }
+            return newConversation;
+        });
+        playAudio(result.audioDataUri);
       } else {
         throw new Error('Failed to generate audio.');
       }

@@ -97,11 +97,11 @@ const textToSpeechFlow = ai.defineFlow(
         audioDataUri: `data:audio/wav;base64,${wavBase64}`,
       };
     } catch (err: any) {
-        console.error("Text-to-speech flow failed", err);
-        if (err.message.includes('429')) {
-            return { error: 'Text-to-speech quota exceeded. Please try again later.' };
-        }
-        return { error: 'Failed to generate audio.' };
+      console.error("Text-to-speech flow failed", err);
+      if (err.message && err.message.includes('429')) {
+          return { error: 'Text-to-speech quota exceeded. Please try again later.' };
+      }
+      return { error: 'Failed to generate audio.' };
     }
   }
 );
