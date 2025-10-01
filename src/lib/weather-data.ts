@@ -111,21 +111,13 @@ export async function getRealTimeWeather(
     return {
       currentWeather: {
         location: fallbackCityName || 'Unknown Location',
-        temperature: 25,
-        condition: 'Cloudy',
-        wind: '10 km/h',
-        humidity: '60%',
-        windSpeed: 10,
+        temperature: 0,
+        condition: 'Error',
+        wind: 'N/A',
+        humidity: 'N/A',
+        windSpeed: 0,
       },
-      forecast: [
-        { day: 'Mon', temp: 26, condition: 'Sunny' },
-        { day: 'Tue', temp: 27, condition: 'Sunny' },
-        { day: 'Wed', temp: 25, condition: 'Cloudy' },
-        { day: 'Thu', temp: 24, condition: 'Rainy' },
-        { day: 'Fri', temp: 24, condition: 'Rainy' },
-        { day: 'Sat', temp: 26, condition: 'Cloudy' },
-        { day: 'Sun', temp: 27, condition: 'Sunny' },
-      ],
+      forecast: [],
     };
   }
 }
