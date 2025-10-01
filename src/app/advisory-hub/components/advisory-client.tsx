@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import type { AdvisoryArticle } from '@/lib/advisory-data';
 import { useTranslation } from '@/context/language-context';
+import Link from 'next/link';
 
 type AdvisoryArticleWithImage = Omit<AdvisoryArticle, 'category'> & {
   imageUrl: string;
@@ -74,28 +75,30 @@ export function AdvisoryClient({ articles, categories }: AdvisoryClientProps) {
       {filteredArticles.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredArticles.map((article) => (
-            <Card key={article.id} className="flex flex-col overflow-hidden shadow-lg transition-transform hover:scale-105 hover:shadow-xl">
-              <div className="relative w-full h-48">
-                <Image
-                  src={article.imageUrl}
-                  alt={article.title}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  className="transition-opacity opacity-0 duration-1000"
-                  onLoad={event => event.currentTarget.classList.remove('opacity-0')}
-                  data-ai-hint={article.imageHint}
-                />
-              </div>
-              <CardHeader>
-                <CardTitle>{article.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <p className="text-sm text-muted-foreground">{article.summary}</p>
-              </CardContent>
-              <CardFooter>
-                 <span className="text-xs font-semibold bg-primary/20 text-primary-foreground rounded-full px-3 py-1">{article.category}</span>
-              </CardFooter>
-            </Card>
+            <Link key={article.id} href={article.url} target="_blank" rel="noopener noreferrer" className="block">
+              <Card className="flex flex-col h-full overflow-hidden shadow-lg transition-transform hover:scale-105 hover:shadow-xl">
+                <div className="relative w-full h-48">
+                  <Image
+                    src={article.imageUrl}
+                    alt={article.title}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    className="transition-opacity opacity-0 duration-1000"
+                    onLoad={event => event.currentTarget.classList.remove('opacity-0')}
+                    data-ai-hint={article.imageHint}
+                  />
+                </div>
+                <CardHeader>
+                  <CardTitle>{article.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <p className="text-sm text-muted-foreground">{article.summary}</p>
+                </CardContent>
+                <CardFooter>
+                  <span className="text-xs font-semibold bg-primary/20 text-primary-foreground rounded-full px-3 py-1">{article.category}</span>
+                </CardFooter>
+              </Card>
+            </Link>
           ))}
         </div>
       ) : (
