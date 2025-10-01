@@ -36,6 +36,33 @@ export default function Home() {
   const [heatThreshold, setHeatThreshold] = useState(35);
   const [coldThreshold, setColdThreshold] = useState(5);
 
+  useEffect(() => {
+    try {
+        const savedWind = localStorage.getItem('windThreshold');
+        const savedHeat = localStorage.getItem('heatThreshold');
+        const savedCold = localStorage.getItem('coldThreshold');
+
+        if (savedWind) setWindThreshold(JSON.parse(savedWind));
+        if (savedHeat) setHeatThreshold(JSON.parse(savedHeat));
+        if (savedCold) setColdThreshold(JSON.parse(savedCold));
+    } catch (error) {
+        console.error("Failed to load weather thresholds from localStorage", error);
+    }
+  }, []);
+
+  const handleWindChange = (value: number) => {
+    setWindThreshold(value);
+    localStorage.setItem('windThreshold', JSON.stringify(value));
+  };
+  const handleHeatChange = (value: number) => {
+    setHeatThreshold(value);
+    localStorage.setItem('heatThreshold', JSON.stringify(value));
+  };
+  const handleColdChange = (value: number) => {
+    setColdThreshold(value);
+    localStorage.setItem('coldThreshold', JSON.stringify(value));
+  };
+
   const fetchWeatherForLocation = useCallback(async (lat: number, lon: number, fallbackCityName?: string) => {
     setError(null);
     setLoading(true);
@@ -216,9 +243,9 @@ export default function Home() {
           windThreshold={windThreshold}
           heatThreshold={heatThreshold}
           coldThreshold={coldThreshold}
-          onWindChange={setWindThreshold}
-          onHeatChange={setHeatThreshold}
-          onColdChange={setColdThreshold}
+          onWindChange={handleWindChange}
+          onHeatChange={handleHeatChange}
+          onColdChange={handleColdChange}
         />
       </section>
 
