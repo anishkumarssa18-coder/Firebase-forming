@@ -63,8 +63,22 @@ export function AiAssistantClient() {
             return newConversation;
         });
         playAudio(result.audioDataUri);
+      } else if (result.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Speech Error',
+          description: result.error,
+        });
+        // Mark as failed so we don't retry
+        setConversation(prev => {
+            const newConversation = [...prev];
+            if(newConversation[messageIndex]) {
+                newConversation[messageIndex].audioUrl = null;
+            }
+            return newConversation;
+        });
       } else {
-        throw new Error(result.error || 'Failed to generate audio.');
+        throw new Error('Failed to generate audio.');
       }
     } catch (error: any) {
       console.error('TTS Error:', error);
