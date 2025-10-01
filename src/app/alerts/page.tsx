@@ -29,11 +29,11 @@ const AlertCard: React.FC<{ alert: AlertType }> = ({ alert }) => {
   const [formattedTime, setFormattedTime] = useState('');
 
   useEffect(() => {
+    // This now runs only on the client, preventing hydration mismatch.
     const alertDate = new Date(alert.date);
     setFormattedDate(alertDate.toLocaleDateString());
     setFormattedTime(alertDate.toLocaleTimeString());
   }, [alert.date]);
-
 
   const config = severityConfig[alert.severity];
   const translatedTitle = t(`alerts.items.${alert.id}.title`);

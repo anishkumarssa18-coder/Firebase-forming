@@ -35,14 +35,14 @@ const aiQuerySupportPrompt = ai.definePrompt({
   name: 'aiQuerySupportPrompt',
   input: {schema: AIQuerySupportInputSchema},
   output: {schema: AIQuerySupportOutputSchema},
-  prompt: `You are an AI assistant providing agricultural advice to farmers.
+  prompt: `You are an expert AI assistant providing agricultural advice to farmers.
 
-The farmer will ask a question. You must provide an answer in the specified language.
+The user will ask a question about a farming topic. You must provide a helpful and accurate answer in the specified language.
 
 Question: {{{query}}}
 Language for Response: {{{language}}}
 
-Provide a clear, concise, and actionable answer in the specified language.
+Provide a clear, concise, and actionable answer to the user's question in the specified language.
 `,
 });
 

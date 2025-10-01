@@ -13,20 +13,7 @@ export type CurrentWeather = {
 export type ForecastDay = {
   day: string;
   temp: number;
-  condition: 'Sunny' | 'Cloudy' | 'Rainy' | 'Clear';
-};
-
-const weatherConditionMap = {
-  'clear sky': 'Sunny',
-  'few clouds': 'Cloudy',
-  'scattered clouds': 'Cloudy',
-  'broken clouds': 'Cloudy',
-  'shower rain': 'Rainy',
-  rain: 'Rainy',
-  thunderstorm: 'Rainy',
-  snow: 'Rainy',
-  mist: 'Cloudy',
-  default: 'Cloudy',
+  condition: string;
 };
 
 const openWeatherMapApiKey = process.env.OPENWEATHERMAP_API_KEY;
@@ -39,19 +26,7 @@ export async function getRealTimeWeather(
   forecast: ForecastDay[];
 }> {
   if (!openWeatherMapApiKey) {
-    console.error('OpenWeatherMap API key is missing.');
-    return {
-      currentWeather: {
-        location: 'API Key Missing',
-        temperature: 0,
-        condition: '...',
-        description: '...',
-        wind: '... km/h',
-        humidity: '...%',
-        windSpeed: 0,
-      },
-      forecast: [],
-    };
+    throw new Error('OpenWeatherMap API key is missing.');
   }
 
   try {
@@ -65,10 +40,12 @@ export async function getRealTimeWeather(
     ]);
 
     if (!weatherResponse.ok) {
-      throw new Error(`Weather data fetch failed: ${weatherResponse.statusText}`);
+      const errorData = await weatherResponse.json();
+      throw new Error(`Weather data fetch failed: ${weatherResponse.statusText} - ${errorData.message}`);
     }
      if (!onecallResponse.ok) {
-      throw new Error(`OneCall forecast data fetch failed: ${onecallResponse.statusText}`);
+       const errorData = await onecallResponse.json();
+      throw new Error(`OneCall forecast data fetch failed: ${onecallResponse.statusText} - ${errorData.message}`);
     }
 
     const weatherData = await weatherResponse.json();
@@ -90,31 +67,18 @@ export async function getRealTimeWeather(
 
     const forecast: ForecastDay[] = onecallData.daily.slice(0, 7).map((day: any) => {
       const date = new Date(day.dt * 1000);
-      const condition =
-        (weatherConditionMap as any)[day.weather[0].description] ||
-        weatherConditionMap.default;
-
+      
       return {
         day: date.toLocaleDateString('en-US', { weekday: 'short' }),
         temp: Math.round(day.temp.day),
-        condition: condition,
+        condition: day.weather[0].main,
       };
     });
 
     return { currentWeather, forecast };
   } catch (error) {
     console.error('Failed to get real-time weather:', error);
-    return {
-      currentWeather: {
-        location: 'Unknown Location',
-        temperature: 0,
-        condition: 'Error',
-        description: 'Error',
-        wind: 'N/A',
-        humidity: 'N/A',
-        windSpeed: 0,
-      },
-      forecast: [],
-    };
+    // Re-throw the error to be caught by the calling component
+    throw error;
   }
 }

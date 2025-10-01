@@ -11,7 +11,8 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 const DailyBriefingInputSchema = z.object({
-  language: z.string().describe('The language code for the briefing (e.g., en, hi).'),
+  language: z.string().describe('The language for the briefing (e.g., English, Hindi).'),
+  currentDate: z.string().describe('The current date for the briefing.'),
 });
 export type DailyBriefingInput = z.infer<typeof DailyBriefingInputSchema>;
 
@@ -28,19 +29,19 @@ const dailyBriefingPrompt = ai.definePrompt({
   name: 'dailyBriefingPrompt',
   input: { schema: DailyBriefingInputSchema },
   output: { schema: DailyBriefingOutputSchema },
-  prompt: `You are an agricultural expert AI. Generate a short, scannable "Daily Farmer's Briefing" for today, {{currentDate}}.
+  prompt: `You are an agricultural expert AI. Generate a short, scannable "Daily Farmer's Briefing" for today, {{{currentDate}}}.
 
-The briefing should be in the language corresponding to this language code: {{{language}}}.
+The briefing must be in the language: {{{language}}}.
 
 Include 3-4 bullet points covering a mix of the following topics:
-- A critical, timely farming tip (e.g., related to current season, weather).
+- A critical, timely farming tip (e.g., related to the current season, weather).
 - A brief update on a relevant government scheme for farmers.
 - A summary of a recent development in agricultural technology or market trends.
 - An alert for potential pest or disease outbreaks based on common seasonal patterns.
 
 The tone should be informative, direct, and easy to understand. Start with a positive and encouraging opening.
 
-IMPORTANT: Format the bullet points using plain text, like '*' or '-', not with HTML tags like <ul> or <li>.
+IMPORTANT: Format the bullet points using plain text, like '*' or '-', not with HTML tags.
 `,
 });
 
@@ -51,10 +52,7 @@ const dailyBriefingFlow = ai.defineFlow(
     outputSchema: DailyBriefingOutputSchema,
   },
   async (input) => {
-    const { output } = await dailyBriefingPrompt({
-      ...input,
-      currentDate: new Date().toLocaleDateString('en-US', { dateStyle: 'long' }),
-    });
+    const { output } = await dailyBriefingPrompt(input);
     return output!;
   }
 );

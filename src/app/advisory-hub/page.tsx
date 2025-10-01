@@ -35,16 +35,19 @@ function shuffle<T>(array: T[], seed: number): T[] {
   return newArray;
 }
 
+const getDailySeed = () => {
+    const today = new Date();
+    return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+}
+
 
 export default function AdvisoryHubPage() {
   const { t } = useTranslation();
   
-  const [shuffledArticles, setShuffledArticles] = useState([...advisoryArticles]);
-
-  useEffect(() => {
-    // Use the current date as a seed for daily shuffling
-    const seed = new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 100 + new Date().getDate();
-    setShuffledArticles(shuffle([...advisoryArticles], seed));
+  // Use useMemo to ensure shuffling only happens once per seed, not on every render.
+  const shuffledArticles = useMemo(() => {
+    const seed = getDailySeed();
+    return shuffle([...advisoryArticles], seed);
   }, []);
 
   const articlesWithImages = useMemo(() => {
@@ -61,7 +64,9 @@ export default function AdvisoryHubPage() {
     });
   }, [shuffledArticles, t]);
   
-  const translatedCategories = advisoryCategories.map(cat => t(`advisory.categories.${cat.replace(' ', '')}`));
+  const translatedCategories = useMemo(() => {
+    return advisoryCategories.map(cat => t(`advisory.categories.${cat.replace(' ', '')}`));
+  }, [t]);
 
   return (
     <div className="space-y-8">

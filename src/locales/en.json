@@ -22,13 +22,33 @@
     "loadingWeather": "Loading weather...",
     "wind": "Wind",
     "humidity": "Humidity",
-    "weatherError": "Could not fetch weather data. Please try again.",
-    "locationDenied": "Location access denied. Showing weather for a default location.",
-    "geolocationNotSupported": "Geolocation is not supported. Showing weather for a default location.",
+    "weatherError": "Could not fetch weather data. Please try again later.",
+    "locationDeniedTitle": "Location Access Denied",
+    "locationDeniedDescription": "Showing weather for the default location.",
+    "geolocationNotSupportedTitle": "Geolocation Not Supported",
+    "geolocationNotSupportedDescription": "Showing weather for the default location.",
     "forecastTitle": "7-Day Forecast",
     "haveQuestion": "Have a Question?",
     "askAi": "Get instant, AI-powered answers to your farming questions.",
-    "askAiButton": "Ask AI Assistant"
+    "askAiButton": "Ask AI Assistant",
+    "alerts": {
+      "highWind": {
+        "title": "High Wind Alert",
+        "description": "Strong winds of {wind} detected. This may cause damage to tall crops or lightweight structures."
+      },
+      "heatwave": {
+        "title": "Heatwave Alert",
+        "description": "Extreme heat of {temp}°C expected. Ensure crops are well-irrigated to prevent heat stress."
+      },
+      "coldSnap": {
+        "title": "Cold Snap Alert",
+        "description": "Low temperatures of {temp}°C detected. Protect sensitive crops from potential frost damage."
+      },
+      "heavyRain": {
+        "title": "Heavy Rain Warning",
+        "description": "Heavy rainfall is occurring. Be aware of potential for waterlogging in fields and plan drainage accordingly."
+      }
+    }
   },
   "query": {
     "title": "AI Advisory",
@@ -69,6 +89,8 @@
     "all": "All",
     "noArticlesFound": "No articles found.",
     "adjustFilters": "Try adjusting your search or filters.",
+    "dailyBriefingTitle": "Daily Farmer's Briefing",
+    "generatingBriefing": "Generating today's briefing...",
     "categories": {
       "CropCare": "Crop Care",
       "SoilManagement": "Soil Management",

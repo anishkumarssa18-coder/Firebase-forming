@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getRealTimeWeather, type CurrentWeather, type ForecastDay } from '@/lib/weather-data';
 import { ArrowRight, Cloud, Droplets, Sun, Thermometer, Wind, CloudRain, LocateFixed, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from '@/context/language-context';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,6 +31,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const { toast } = useToast();
+  
+  const hasAlertedRef = useRef(false);
 
   const [windThreshold, setWindThreshold] = useState(30);
   const [heatThreshold, setHeatThreshold] = useState(35);
@@ -53,11 +55,13 @@ export default function Home() {
   const fetchWeatherForLocation = useCallback(async (lat: number, lon: number) => {
     setError(null);
     setLoading(true);
+    hasAlertedRef.current = false;
     try {
       const weatherData = await getRealTimeWeather(lat, lon);
       setWeather(weatherData);
     } catch (err) {
       setError(t('home.weatherError'));
+      setWeather(defaultWeather); // Reset to default on error
     } finally {
       setLoading(false);
     }
@@ -72,8 +76,8 @@ export default function Home() {
         () => {
           toast({
             variant: 'default',
-            title: t('home.locationDenied'),
-            description: "Showing weather for the default location."
+            title: t('home.locationDeniedTitle'),
+            description: t('home.locationDeniedDescription')
           });
           // On denial, explicitly fetch for default location: Nagapattinam
           fetchWeatherForLocation(10.77, 79.84);
@@ -82,8 +86,8 @@ export default function Home() {
     } else {
        toast({
           variant: 'default',
-          title: t('home.geolocationNotSupported'),
-          description: "Showing weather for the default location."
+          title: t('home.geolocationNotSupportedTitle'),
+          description: t('home.geolocationNotSupportedDescription')
         });
         // Geolocation not supported, fetch for default location: Nagapattinam
         fetchWeatherForLocation(10.77, 79.84);
@@ -95,14 +99,15 @@ export default function Home() {
   }, [requestLocationAndUpdateWeather]);
 
   useEffect(() => {
-    if (!loading && weather.currentWeather.location !== 'Loading...') {
+    // This effect runs only when weather data is loaded and no alerts have been shown for this data yet.
+    if (!loading && weather.currentWeather.location !== 'Loading...' && !hasAlertedRef.current) {
         const { windSpeed, temperature, description } = weather.currentWeather;
 
         if (windSpeed > windThreshold) {
             toast({
                 variant: 'destructive',
-                title: 'High Wind Alert',
-                description: `Strong winds of ${weather.currentWeather.wind} detected. This may cause damage to tall crops or lightweight structures.`,
+                title: t('home.alerts.highWind.title'),
+                description: t('home.alerts.highWind.description', { wind: weather.currentWeather.wind }),
                 duration: 8000,
             });
         }
@@ -110,8 +115,8 @@ export default function Home() {
         if (temperature > heatThreshold) {
             toast({
                 variant: 'destructive',
-                title: 'Heatwave Alert',
-                description: `Extreme heat of ${temperature}°C expected. Ensure crops are well-irrigated to prevent heat stress.`,
+                title: t('home.alerts.heatwave.title'),
+                description: t('home.alerts.heatwave.description', { temp: temperature }),
                 duration: 8000,
             });
         }
@@ -119,21 +124,24 @@ export default function Home() {
         if (temperature < coldThreshold) {
             toast({
                 variant: 'destructive',
-                title: 'Cold Snap Alert',
-                description: `Low temperatures of ${temperature}°C detected. Protect sensitive crops from potential frost damage.`,
+                title: t('home.alerts.coldSnap.title'),
+                description: t('home.alerts.coldSnap.description', { temp: temperature }),
                 duration: 8_000,
             });
         }
         
-        const lowerCaseCondition = description.toLowerCase();
-        if (lowerCaseCondition.includes('heavy rain') || lowerCaseCondition.includes('thunderstorm')) {
+        const lowerCaseDescription = description.toLowerCase();
+        if (lowerCaseDescription.includes('heavy rain') || lowerCaseDescription.includes('thunderstorm')) {
             toast({
                 variant: 'destructive',
-                title: 'Heavy Rain Warning',
-                description: 'Heavy rainfall is occurring. Be aware of potential for waterlogging in fields and plan drainage accordingly.',
+                title: t('home.alerts.heavyRain.title'),
+                description: t('home.alerts.heavyRain.description'),
                 duration: 8000,
             });
         }
+        
+        // Mark that alerts have been processed for this weather data load.
+        hasAlertedRef.current = true;
     }
   }, [weather.currentWeather, loading, toast, t, windThreshold, heatThreshold, coldThreshold]);
   
@@ -147,7 +155,7 @@ export default function Home() {
     if (lowerCaseCondition.includes('cloud')) {
       return <Cloud className={className} />;
     }
-    if (lowerCaseCondition.includes('rain')) {
+    if (lowerCaseCondition.includes('rain') || lowerCaseCondition.includes('drizzle')) {
       return <CloudRain className={className} />;
     }
     return <Cloud className={className} />;
@@ -166,7 +174,7 @@ export default function Home() {
         <Card className="max-w-md mx-auto shadow-lg border-2 border-primary/20 mt-8">
           <CardHeader>
             <CardTitle className="flex items-center justify-between text-primary">
-              <span>{loading ? t('home.fetchingLocation') : currentWeather.location}</span>
+              <span>{currentWeather.location}</span>
               <Button variant="ghost" size="icon" onClick={requestLocationAndUpdateWeather} disabled={loading} className="w-8 h-8">
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LocateFixed className="w-5 h-5" />}
                   <span className="sr-only">{t('home.refreshLocation')}</span>
@@ -179,6 +187,8 @@ export default function Home() {
                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     <p className="mt-2 text-muted-foreground">{t('home.loadingWeather')}</p>
                 </div>
+            ) : error ? (
+                <div className="text-center text-destructive">{error}</div>
             ) : (
                 <>
                     <div className="flex items-center justify-between">
@@ -187,7 +197,7 @@ export default function Home() {
                           <span className="text-4xl font-bold">{currentWeather.temperature}°C</span>
                       </div>
                       <div className='flex flex-col items-center'>
-                          <WeatherIcon condition={currentWeather.condition} className="w-8 h-8 text-yellow-500" />
+                          <WeatherIcon condition={currentWeather.description} className="w-8 h-8 text-yellow-500" />
                           <p className="text-lg text-muted-foreground capitalize">{currentWeather.description}</p>
                       </div>
                     </div>
@@ -199,7 +209,6 @@ export default function Home() {
             )}
           </CardContent>
         </Card>
-        {error && !loading && <p className="text-center text-red-600 dark:text-red-400 mt-2">{error}</p>}
       </section>
 
       <section className="space-y-6">
@@ -210,7 +219,7 @@ export default function Home() {
           {loading ? (
              Array(7).fill(0).map((_, index) => (
                 <Card key={index} className="flex flex-col items-center p-4 shadow-md">
-                   <div className="flex flex-col items-center justify-center h-24">
+                   <div className="flex flex-col items-center justify-center h-full">
                       <Loader2 className="w-6 h-6 animate-spin text-primary" />
                    </div>
                 </Card>
