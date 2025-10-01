@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from '@/context/language-context';
 import { useToast } from '@/hooks/use-toast';
+import { WeatherAlertSettings } from './components/weather-alert-settings';
 
 const defaultWeather: {
   currentWeather: CurrentWeather,
@@ -24,16 +25,16 @@ const defaultWeather: {
   forecast: Array(7).fill({ day: '...', temp: 0, condition: 'Cloudy' })
 };
 
-const WIND_THRESHOLD = 30; // km/h
-const HEAT_THRESHOLD = 35; // °C
-const COLD_THRESHOLD = 5; // °C
-
 export default function Home() {
   const [weather, setWeather] = useState(defaultWeather);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const { toast } = useToast();
+
+  const [windThreshold, setWindThreshold] = useState(30);
+  const [heatThreshold, setHeatThreshold] = useState(35);
+  const [coldThreshold, setColdThreshold] = useState(5);
 
   const fetchWeatherForLocation = useCallback(async (lat: number, lon: number, fallbackCityName?: string) => {
     setError(null);
@@ -82,7 +83,7 @@ export default function Home() {
     if (!loading && weather.currentWeather.location !== 'Loading...') {
         const { windSpeed, temperature, condition } = weather.currentWeather;
 
-        if (windSpeed > WIND_THRESHOLD) {
+        if (windSpeed > windThreshold) {
             toast({
                 variant: 'destructive',
                 title: 'High Wind Alert',
@@ -91,7 +92,7 @@ export default function Home() {
             });
         }
 
-        if (temperature > HEAT_THRESHOLD) {
+        if (temperature > heatThreshold) {
             toast({
                 variant: 'destructive',
                 title: 'Heatwave Alert',
@@ -100,7 +101,7 @@ export default function Home() {
             });
         }
 
-        if (temperature < COLD_THRESHOLD) {
+        if (temperature < coldThreshold) {
             toast({
                 variant: 'destructive',
                 title: 'Cold Snap Alert',
@@ -118,7 +119,7 @@ export default function Home() {
             });
         }
     }
-  }, [weather.currentWeather, loading, toast, t]);
+  }, [weather.currentWeather, loading, toast, t, windThreshold, heatThreshold, coldThreshold]);
   
   const { currentWeather, forecast } = weather;
 
@@ -208,6 +209,17 @@ export default function Home() {
             </Card>
           ))}
         </div>
+      </section>
+      
+      <section>
+        <WeatherAlertSettings
+          windThreshold={windThreshold}
+          heatThreshold={heatThreshold}
+          coldThreshold={coldThreshold}
+          onWindChange={setWindThreshold}
+          onHeatChange={setHeatThreshold}
+          onColdChange={setColdThreshold}
+        />
       </section>
 
       <section className="text-center py-8">
