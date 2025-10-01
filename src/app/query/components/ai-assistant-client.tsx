@@ -18,11 +18,6 @@ type Message = {
   audioUrl?: string;
 };
 
-// Check for SpeechRecognition API
-const SpeechRecognition =
-  (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition));
-
-
 export function AiAssistantClient() {
   const [conversation, setConversation] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -32,10 +27,17 @@ export function AiAssistantClient() {
   const [isRecording, setIsRecording] = useState(false);
   const [isUttering, setIsUttering] = useState(false);
   const [isTtsPending, setIsTtsPending] = useState(false);
+  const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(false);
   const { toast } = useToast();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
+  useEffect(() => {
+    // Check for SpeechRecognition API support on the client after mount
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    setIsSpeechRecognitionSupported(!!SpeechRecognition);
+  }, []);
+  
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -108,6 +110,7 @@ export function AiAssistantClient() {
 
 
   const toggleRecording = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast({
         variant: 'destructive',
@@ -143,9 +146,11 @@ export function AiAssistantClient() {
 
       recognition.onend = () => {
         setIsRecording(false);
-        recognitionRef.current = null;
+        if (input === 'Listening...') {
+            setInput('');
+        }
       };
-
+      
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         toast({
@@ -154,6 +159,7 @@ export function AiAssistantClient() {
           description: `An error occurred: ${event.error}`,
         });
         setIsRecording(false);
+        setInput('');
       };
 
       recognition.start();
@@ -230,7 +236,7 @@ export function AiAssistantClient() {
       </CardContent>
       <CardFooter>
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(input); }} className="flex w-full items-center gap-2">
-           <Button type="button" variant="outline" onClick={toggleRecording} disabled={!SpeechRecognition || isPending}>
+           <Button type="button" variant="outline" onClick={toggleRecording} disabled={!isSpeechRecognitionSupported || isPending}>
             {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
             <span className="sr-only">{isRecording ? "Stop recording" : "Start recording"}</span>
           </Button>
