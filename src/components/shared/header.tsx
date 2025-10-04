@@ -63,20 +63,24 @@ export function Header() {
   const { t } = useTranslation();
   const { theme, setTheme, resolvedTheme } = useTheme();
 
-  const [mode, colorTheme] = theme?.split('-') ?? ['light', 'default'];
+  const [mode, colorTheme] = theme?.includes('dark-')
+    ? ['dark', theme.replace('dark-', '')]
+    : ['light', theme || 'default'];
 
   const handleThemeChange = (newColor: string) => {
-    const newTheme = resolvedTheme === 'dark' && newColor !== 'default' ? `dark-${newColor}` : newColor;
-    setTheme(newTheme);
+    if (newColor === 'default') {
+      setTheme(mode); // 'light' or 'dark'
+    } else {
+      setTheme(mode === 'dark' ? `dark-${newColor}` : newColor);
+    }
   }
 
-  const handleModeChange = (newMode: 'light' | 'dark' | 'system') => {
-    if (newMode === 'system') {
-      setTheme(colorTheme);
-      return;
+  const handleModeChange = (newMode: 'light' | 'dark') => {
+    if (colorTheme === 'default') {
+      setTheme(newMode);
+    } else {
+      setTheme(newMode === 'dark' ? `dark-${colorTheme}` : colorTheme);
     }
-    const newTheme = colorTheme !== 'default' ? `${newMode}-${colorTheme}` : newMode;
-    setTheme(newTheme);
   }
 
   const NavLink = ({
@@ -140,7 +144,7 @@ export function Header() {
                   </DropdownMenuSubTrigger>
                    <DropdownMenuPortal>
                       <DropdownMenuSubContent>
-                         <DropdownMenuRadioGroup value={resolvedTheme} onValueChange={(v) => handleModeChange(v as any)}>
+                         <DropdownMenuRadioGroup value={mode} onValueChange={(v) => handleModeChange(v as any)}>
                             <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
                           </DropdownMenuRadioGroup>
