@@ -30,12 +30,12 @@ export async function getRealTimeWeather(
   }
 
   try {
-    const [weatherResponse, onecallResponse] = await Promise.all([
+    const [weatherResponse, forecastResponse] = await Promise.all([
        fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${openWeatherMapApiKey}&units=metric`
       ),
       fetch(
-        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&appid=${openWeatherMapApiKey}&units=metric`
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${openWeatherMapApiKey}&units=metric`
       ),
     ]);
 
@@ -43,13 +43,13 @@ export async function getRealTimeWeather(
       const errorData = await weatherResponse.json();
       throw new Error(`Weather data fetch failed: ${weatherResponse.statusText} - ${errorData.message}`);
     }
-     if (!onecallResponse.ok) {
-       const errorData = await onecallResponse.json();
-      throw new Error(`OneCall forecast data fetch failed: ${onecallResponse.statusText} - ${errorData.message}`);
+     if (!forecastResponse.ok) {
+       const errorData = await forecastResponse.json();
+      throw new Error(`Forecast data fetch failed: ${forecastResponse.statusText} - ${errorData.message}`);
     }
 
     const weatherData = await weatherResponse.json();
-    const onecallData = await onecallResponse.json();
+    const forecastData = await forecastResponse.json();
     
     const locationName = (weatherData.name && weatherData.sys.country 
         ? `${weatherData.name}, ${weatherData.sys.country}` 
@@ -64,16 +64,42 @@ export async function getRealTimeWeather(
       humidity: `${weatherData.main.humidity}%`,
       windSpeed: weatherData.wind.speed,
     };
+    
+    // Process the 5-day/3-hour forecast data to get a daily forecast for 7 days
+    const dailyForecasts: { [key: string]: { temps: number[], conditions: string[] } } = {};
 
-    const forecast: ForecastDay[] = onecallData.daily.slice(0, 7).map((day: any) => {
-      const date = new Date(day.dt * 1000);
+    forecastData.list.forEach((item: any) => {
+      const date = new Date(item.dt * 1000);
+      const dayString = date.toLocaleDateString('en-US', { weekday: 'short' });
+
+      if (!dailyForecasts[dayString]) {
+        dailyForecasts[dayString] = { temps: [], conditions: [] };
+      }
+      dailyForecasts[dayString].temps.push(item.main.temp);
+      dailyForecasts[dayString].conditions.push(item.weather[0].main);
+    });
+
+    // Sort days to ensure correct order starting from today
+    const forecastOrder = Object.keys(dailyForecasts);
+
+    const forecast: ForecastDay[] = forecastOrder.slice(0, 7).map(day => {
+      const dayData = dailyForecasts[day];
+      const avgTemp = dayData.temps.reduce((a, b) => a + b, 0) / dayData.temps.length;
       
+      // Find the most frequent condition for the day
+      const conditionCounts = dayData.conditions.reduce((acc, condition) => {
+        acc[condition] = (acc[condition] || 0) + 1;
+        return acc;
+      }, {} as {[key: string]: number});
+      const mainCondition = Object.keys(conditionCounts).reduce((a, b) => conditionCounts[a] > conditionCounts[b] ? a : b);
+
       return {
-        day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        temp: Math.round(day.temp.day),
-        condition: day.weather[0].main,
+        day: day,
+        temp: Math.round(avgTemp),
+        condition: mainCondition,
       };
     });
+
 
     return { currentWeather, forecast };
   } catch (error) {

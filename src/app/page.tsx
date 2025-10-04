@@ -32,7 +32,7 @@ export default function Home() {
   const { t } = useTranslation();
   const { toast } = useToast();
   
-  const hasAlertedRef = useRef(false);
+  const alertShownForCurrentData = useRef(false);
 
   const [windThreshold, setWindThreshold] = useState(30);
   const [heatThreshold, setHeatThreshold] = useState(35);
@@ -55,17 +55,57 @@ export default function Home() {
   const fetchWeatherForLocation = useCallback(async (lat: number, lon: number) => {
     setError(null);
     setLoading(true);
-    hasAlertedRef.current = false;
+    alertShownForCurrentData.current = false;
     try {
       const weatherData = await getRealTimeWeather(lat, lon);
       setWeather(weatherData);
+
+       // Trigger alerts after weather state is updated
+       if (!alertShownForCurrentData.current) {
+        const { windSpeed, temperature, description } = weatherData.currentWeather;
+
+        if (windSpeed > windThreshold) {
+          toast({
+            variant: 'destructive',
+            title: t('home.alerts.highWind.title'),
+            description: t('home.alerts.highWind.description', { wind: weatherData.currentWeather.wind }),
+            duration: 8000,
+          });
+        }
+        if (temperature > heatThreshold) {
+          toast({
+            variant: 'destructive',
+            title: t('home.alerts.heatwave.title'),
+            description: t('home.alerts.heatwave.description', { temp: temperature }),
+            duration: 8000,
+          });
+        }
+        if (temperature < coldThreshold) {
+          toast({
+            variant: 'destructive',
+            title: t('home.alerts.coldSnap.title'),
+            description: t('home.alerts.coldSnap.description', { temp: temperature }),
+            duration: 8_000,
+          });
+        }
+        const lowerCaseDescription = description.toLowerCase();
+        if (lowerCaseDescription.includes('heavy rain') || lowerCaseDescription.includes('thunderstorm')) {
+          toast({
+            variant: 'destructive',
+            title: t('home.alerts.heavyRain.title'),
+            description: t('home.alerts.heavyRain.description'),
+            duration: 8000,
+          });
+        }
+        alertShownForCurrentData.current = true;
+      }
     } catch (err) {
       setError(t('home.weatherError'));
       setWeather(defaultWeather); // Reset to default on error
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, toast, windThreshold, heatThreshold, coldThreshold]);
 
   const requestLocationAndUpdateWeather = useCallback(() => {
     if (navigator.geolocation) {
@@ -97,53 +137,6 @@ export default function Home() {
   useEffect(() => {
     requestLocationAndUpdateWeather();
   }, [requestLocationAndUpdateWeather]);
-
-  useEffect(() => {
-    // This effect runs only when weather data is loaded and no alerts have been shown for this data yet.
-    if (!loading && weather.currentWeather.location !== 'Loading...' && !hasAlertedRef.current) {
-        const { windSpeed, temperature, description } = weather.currentWeather;
-
-        if (windSpeed > windThreshold) {
-            toast({
-                variant: 'destructive',
-                title: t('home.alerts.highWind.title'),
-                description: t('home.alerts.highWind.description', { wind: weather.currentWeather.wind }),
-                duration: 8000,
-            });
-        }
-
-        if (temperature > heatThreshold) {
-            toast({
-                variant: 'destructive',
-                title: t('home.alerts.heatwave.title'),
-                description: t('home.alerts.heatwave.description', { temp: temperature }),
-                duration: 8000,
-            });
-        }
-
-        if (temperature < coldThreshold) {
-            toast({
-                variant: 'destructive',
-                title: t('home.alerts.coldSnap.title'),
-                description: t('home.alerts.coldSnap.description', { temp: temperature }),
-                duration: 8_000,
-            });
-        }
-        
-        const lowerCaseDescription = description.toLowerCase();
-        if (lowerCaseDescription.includes('heavy rain') || lowerCaseDescription.includes('thunderstorm')) {
-            toast({
-                variant: 'destructive',
-                title: t('home.alerts.heavyRain.title'),
-                description: t('home.alerts.heavyRain.description'),
-                duration: 8000,
-            });
-        }
-        
-        // Mark that alerts have been processed for this weather data load.
-        hasAlertedRef.current = true;
-    }
-  }, [weather.currentWeather, loading, toast, t, windThreshold, heatThreshold, coldThreshold]);
   
   const { currentWeather, forecast } = weather;
 
