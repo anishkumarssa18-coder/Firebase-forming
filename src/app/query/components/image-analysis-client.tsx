@@ -27,7 +27,6 @@ export function ImageAnalysisClient() {
   const { t } = useTranslation();
 
   const getCameraPermission = useCallback(async () => {
-    if (hasCameraPermission) return; // aklready have it
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera not supported');
@@ -48,7 +47,7 @@ export function ImageAnalysisClient() {
       });
       setCameraOpen(false);
     }
-  }, [toast, hasCameraPermission]);
+  }, [toast]);
 
   useEffect(() => {
     if (isCameraOpen) {
